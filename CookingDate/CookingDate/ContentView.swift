@@ -8,17 +8,25 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+    let images = ["HT", "GY", "LB"]
+    
+        var body: some View {
+            ScrollView(.horizontal){
+                            LazyHStack{
+                                ForEach(images, id: \.self){ image in
+                                    Image(image)
+                                        .containerRelativeFrame(.horizontal)
+                                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                                }
+                            }
+                        }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(LinearGradient.appBackground)
         }
-        .padding()
     }
-}
 
 #Preview {
     ContentView()
 }
+
+
