@@ -1,6 +1,6 @@
 # Cooking Date 🍽️👨🏽‍🍳❤️👩
 
-*Cook Together, Find Love, Share Flavors*  
+*Cook Together, Make Friends, Find Love, Share Flavors*  
 
 <img src="https://github.com/eduSwift/CookingDate/blob/main/CookingDate/CookingDate/Assets.xcassets/AppIcon.appiconset/appstore.png" width="300" align="left">
 
