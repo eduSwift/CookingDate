@@ -2,7 +2,7 @@
 
 *Cook Together, Make Friends, Find Love, Share Flavors*  
 
-<img src="https://github.com/eduSwift/CookingDate/blob/main/CookingDate/CookingDate/Assets.xcassets/AppIcon.appiconset/appstore.png" width="300" align="left">
+<img src="https://github.com/eduSwift/CookingDate/blob/main/CookingDate/CookingDate/Assets.xcassets/AppIcon.appiconset/appstore.png" width="500" align="left">
 
 <br clear="all">
 
@@ -21,6 +21,15 @@
 ## 📸 Screenshots 
 Working in progress... ⏳
 
+## ✨ Features
+
+<ol>
+<li>🔍 Find Nearby Recipes – Search for delicious recipes uploaded by users near you.</li>
+<li>💬 Chat & Connect – Message the recipe uploader to plan a cooking date.</li>
+<li>📍 Arrange a Meet-up – Set up where and when to cook together.</li>
+<li>❤️ More Than Just Cooking – Who knows? It could be the start of a great relationship!</li>
+</ol>
+
 ## 📲 Installation
 1. Clone repo:
    ```bash
@@ -30,16 +39,6 @@ Working in progress... ⏳
    ```bash
    cd cooking-date
 3. Open the project in Xcode and run it on a simulator or a real device.
-
-
-## ✨ Features
-
-<ol>
-<li>🔍 Find Nearby Recipes – Search for delicious recipes uploaded by users near you.</li>
-<li>💬 Chat & Connect – Message the recipe uploader to plan a cooking date.</li>
-<li>📍 Arrange a Meet-up – Set up where and when to cook together.</li>
-<li>❤️ More Than Just Cooking – Who knows? It could be the start of a great relationship!</li>
-</ol>
 
 
 ## 🚀 Technical Stack
