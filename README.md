@@ -57,4 +57,4 @@ Working in progress... ⏳
 
 
 ## 👨🏻‍💻 Contact/Authors
-[Eduardo Rodrigues](https://github.com/eduSwift)
+[Eduardo Rodrigues](https://www.linkedin.com/in/eduardo-rodriguescruz/)
