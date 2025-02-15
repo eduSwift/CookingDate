@@ -24,7 +24,8 @@ struct LoginView: View {
                 
                 Text("Login")
                     .font(.custom("SpaceGrotesk-Bold", size: 36))
-                    .foregroundColor(.white).bold()
+                    .bold()
+                    .foregroundColor(.black)
                 
                 VStack(spacing: 15) {
                     CustomTextField(icon: "envelope", placeholder: "Email", text: $email)
@@ -32,7 +33,7 @@ struct LoginView: View {
                 }
                 Button(action: {
                     Task {
-                        
+                        print("user logged in")
                     }
                 }) {
                     Text("Login")
@@ -47,7 +48,7 @@ struct LoginView: View {
                 
                 Button(action: {
                     Task {
-                        
+                        print("be my guest")
                     }
                 }) {
                     Text("Login as Guest")
