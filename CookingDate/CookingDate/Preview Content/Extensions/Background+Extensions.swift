@@ -11,8 +11,9 @@ import SwiftUI
 extension LinearGradient {
     static let appBackground = LinearGradient(
         gradient: Gradient(colors: [
-            Color(hex: "#0097b2"),
-            Color(hex: "#7ed957")
+            Color.blueBack,
+            Color.greenBack
+            
         ]),
         startPoint: .leading,
         endPoint: .trailing

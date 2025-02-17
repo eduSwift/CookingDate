@@ -23,8 +23,7 @@ struct LoginView: View {
                 
                 
                 Text("Login")
-                    .font(.custom("SpaceGrotesk-Bold", size: 36))
-                    .bold()
+                    .font(.largeTitle).bold()
                     .foregroundColor(.black)
                 
                 VStack(spacing: 15) {
