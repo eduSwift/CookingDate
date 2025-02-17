@@ -9,8 +9,12 @@ import SwiftUI
 import FirebaseAuth
 
 struct LoginView: View {
+    
+    @StateObject var viewModel = LoginViewModel()
+    
     @State private var email: String = ""
     @State private var password: String = ""
+    
     
     var body: some View {
         ZStack {
@@ -29,6 +33,8 @@ struct LoginView: View {
                 VStack(spacing: 15) {
                     CustomTextField(icon: "envelope", placeholder: "Email", text: $email)
                     CustomSecureField(icon: "lock", placeholder: "Password", text: $password)
+               
+                     
                 }
                 Button(action: {
                     Task {
@@ -60,13 +66,23 @@ struct LoginView: View {
                 }
                 .padding(.horizontal)
                 
-                NavigationLink("Don't have an account? Sign up here.", value: "signup")
+                
+                    Text("Don't have an account?")
                     .foregroundColor(.black)
                     .font(.custom("SpaceGrotesk-Medium", size: 16))
+                Button(action: {
+                    viewModel.presentSignUpView = true
+                }, label: {
+                    Text("Sign up here")
+                        .font(.custom("SpaceGrotesk-Medium", size: 16))
+                    
+                })
+                   
             }
             .padding()
-            
-        }
+            .fullScreenCover(isPresented: $viewModel.presentSignUpView, content: {
+            SignUpView()
+        })
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(LinearGradient.appBackground)
         .ignoresSafeArea()
@@ -89,6 +105,7 @@ struct CustomTextField: View {
             TextField(placeholder, text: $text)
                 .foregroundColor(.white)
                 .autocapitalization(.none)
+                .keyboardType(.emailAddress)
                 .padding()
                 .background(Color.white.opacity(0.1))
                 .cornerRadius(10)
@@ -97,26 +114,27 @@ struct CustomTextField: View {
     }
 }
 
-struct CustomSecureField: View {
-    var icon: String
-    var placeholder: String
-    @Binding var text: String
-
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(.white)
-                .frame(width: 40, height: 40)
-                .background(Color.black.opacity(0.2))
-                .cornerRadius(10)
-
-            SecureField(placeholder, text: $text)
-                .foregroundColor(.white)
-                .padding()
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(10)
+    struct CustomSecureField: View {
+        var icon: String
+        var placeholder: String
+        @Binding var text: String
+        
+        var body: some View {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(.white)
+                    .frame(width: 40, height: 40)
+                    .background(Color.black.opacity(0.2))
+                    .cornerRadius(10)
+                
+                SecureField(placeholder, text: $text)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(10)
+            }
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
     }
 }
 
