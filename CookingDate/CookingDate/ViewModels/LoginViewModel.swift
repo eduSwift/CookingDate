@@ -7,13 +7,13 @@
 
 import Foundation
 
-
-class LoginViewModel: ObservableObject {
+@Observable
+class LoginViewModel {
     
-    @Published var presentSignUpView = false
-    @Published var email  = ""
-    @Published var password = ""
-    @Published var showPassword = false
+    var presentSignUpView = false
+    var email  = ""
+    var password = ""
+    var showPassword = false
     
     
     

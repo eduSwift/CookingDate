@@ -10,7 +10,7 @@ import FirebaseAuth
 
 struct SignUpView: View {
     
-    @StateObject var viewModel = SignUpViewModel()
+    @State var viewModel = SignUpViewModel()
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -30,7 +30,9 @@ struct SignUpView: View {
             PasswordComponentView(showPassword: $viewModel.showPassword, password: $viewModel.password)
             
             Button(action: {
-               
+                Task {
+                    await  viewModel.signup()
+                }
             }, label: {
                 Text("Sign Up")
                     .font(.system(size: 15, weight: .semibold))

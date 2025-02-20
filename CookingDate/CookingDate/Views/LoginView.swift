@@ -10,9 +10,7 @@ import FirebaseAuth
 
 struct LoginView: View {
     
-    @StateObject var viewModel = LoginViewModel()
-    
-    
+    @State var viewModel = LoginViewModel()
     
     var body: some View {
         ZStack {

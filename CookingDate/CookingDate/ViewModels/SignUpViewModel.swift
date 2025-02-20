@@ -6,13 +6,29 @@
 //
 
 import Foundation
+import FirebaseAuth
+import FirebaseFirestore
 
-
-class SignUpViewModel: ObservableObject {
+@Observable
+class SignUpViewModel{
     
-    @Published var username = ""
-    @Published var email = ""
-    @Published var showPassword = false
-    @Published var password = ""
-    
+   var username = ""
+   var email = ""
+   var password = ""
+   var showPassword = false
+   
+    func signup() async {
+        do {
+            let result =  try await  Auth.auth().createUser(withEmail: email, password: password)
+            let userId = result.user.uid
+            let userData: [String: Any] = [
+                "username": username,
+                "email": email
+            ]
+            try await Firestore.firestore().collection("users").document(userId).setData(userData)
+        } catch {
+            
+        }
+           
+    }
 }
