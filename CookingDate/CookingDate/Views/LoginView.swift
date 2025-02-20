@@ -41,10 +41,8 @@ struct LoginView: View {
                 }
                 
                 Button(action: {
-                    Task {
-                        print("user logged in")
-                    }
-                }) {
+                   
+                }, label: {
                     Text("Login")
                         .font(.system(size: 15, weight: .semibold))
                         .padding(12)
@@ -52,14 +50,11 @@ struct LoginView: View {
                         .frame(maxWidth: .infinity)
                         .background(Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .padding(.horizontal)
-                
+                })
+         
                 Button(action: {
-                    Task {
-                        print("be my guest")
-                    }
-                }) {
+                    
+                       }, label: {
                     Text("Login as Guest")
                         .font(.system(size: 15, weight: .semibold))
                         .padding(12)
@@ -67,21 +62,22 @@ struct LoginView: View {
                         .frame(maxWidth: .infinity)
                         .background(Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .padding(.horizontal)
-                
-                
-                Text("Don't have an account?")
-                    .foregroundColor(.black)
-                    .font(.custom("SpaceGrotesk-Medium", size: 16))
-                Button(action: {
-                    viewModel.presentSignUpView = true
-                }, label: {
-                    Text("Sign up here")
-                        .font(.custom("SpaceGrotesk-Medium", size: 16))
-                    
                 })
-                
+                HStack {
+                    Spacer()
+                    Text("Don't have an account?")
+                        .foregroundColor(.black)
+                        .font(.system(size: 14))
+                    Button(action: {
+                        viewModel.presentSignUpView = true
+                    }, label: {
+                        Text("Sign up here")
+                            .font(.system(size: 14, weight: .semibold))
+                        
+                    })
+                    Spacer()
+                }
+                .padding(.top, 20)
             }
             .padding()
             .fullScreenCover(isPresented: $viewModel.presentSignUpView, content: {
