@@ -36,92 +36,64 @@ struct LoginView: View {
                     
                     Text("Password")
                         .font(.system(size: 15))
-                    if viewModel.showPassword {
-                        TextField("Passwrod", text: $viewModel.password)
-                            .textFieldStyle(AuthTextFieldStyle())
-                            .overlay(alignment: .trailing) {
-                                Button(action: {
-                                    viewModel.showPassword = false
-                                }, label: {
-                                    Image(systemName: "eye")
-                                        .foregroundStyle(.black)
-                                        .padding(.bottom)
-                                })
-                            }
-                    } else {
-                        VStack {
-                            SecureField("Password", text: $viewModel.password)
-                                .font(.system(size: 14))
-                            Rectangle()
-                                .frame(height: 1)
-                                .padding(.bottom, 15)
-                        }
-                            .overlay(alignment: .trailing) {
-                                Button(action: {
-                                    viewModel.showPassword = true
-                                }, label: {
-                                    Image(systemName: "eye.slash")
-                                        .foregroundStyle(.black)
-                                        .padding(.bottom)
-                                })
-                            }
-                        
-                    }
-                   
-                    Button(action: {
-                        Task {
-                            print("user logged in")
-                        }
-                    }) {
-                        Text("Login")
-                            .font(.system(size: 15, weight: .semibold))
-                            .padding(12)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .background(Color.black)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    .padding(.horizontal)
-                    
-                    Button(action: {
-                        Task {
-                            print("be my guest")
-                        }
-                    }) {
-                        Text("Login as Guest")
-                            .font(.system(size: 15, weight: .semibold))
-                            .padding(12)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .background(Color.black)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    .padding(.horizontal)
-                    
-                    
-                    Text("Don't have an account?")
-                        .foregroundColor(.black)
-                        .font(.custom("SpaceGrotesk-Medium", size: 16))
-                    Button(action: {
-                        viewModel.presentSignUpView = true
-                    }, label: {
-                        Text("Sign up here")
-                            .font(.custom("SpaceGrotesk-Medium", size: 16))
-                        
-                    })
+                    PasswordComponentView(showPassword: $viewModel.showPassword, password: $viewModel.password)
                     
                 }
-                .padding()
-                .fullScreenCover(isPresented: $viewModel.presentSignUpView, content: {
-                    SignUpView()
+                
+                Button(action: {
+                    Task {
+                        print("user logged in")
+                    }
+                }) {
+                    Text("Login")
+                        .font(.system(size: 15, weight: .semibold))
+                        .padding(12)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.black)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .padding(.horizontal)
+                
+                Button(action: {
+                    Task {
+                        print("be my guest")
+                    }
+                }) {
+                    Text("Login as Guest")
+                        .font(.system(size: 15, weight: .semibold))
+                        .padding(12)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.black)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .padding(.horizontal)
+                
+                
+                Text("Don't have an account?")
+                    .foregroundColor(.black)
+                    .font(.custom("SpaceGrotesk-Medium", size: 16))
+                Button(action: {
+                    viewModel.presentSignUpView = true
+                }, label: {
+                    Text("Sign up here")
+                        .font(.custom("SpaceGrotesk-Medium", size: 16))
+                    
                 })
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(LinearGradient.appBackground)
-                .ignoresSafeArea()
+                
             }
+            .padding()
+            .fullScreenCover(isPresented: $viewModel.presentSignUpView, content: {
+                SignUpView()
+            })
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(LinearGradient.appBackground)
+            .ignoresSafeArea()
         }
     }
 }
+
 
 #Preview {
     LoginView()
