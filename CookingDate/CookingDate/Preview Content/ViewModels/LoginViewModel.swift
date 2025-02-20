@@ -11,6 +11,10 @@ import Foundation
 class LoginViewModel: ObservableObject {
     
     @Published var presentSignUpView = false
+    @Published var email  = ""
+    @Published var password = ""
+    @Published var showPassword = false
+    
     
     
 }
