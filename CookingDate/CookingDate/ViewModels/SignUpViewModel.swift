@@ -12,18 +12,48 @@ import FirebaseFirestore
 @Observable
 class SignUpViewModel{
     
-   var username = ""
-   var email = ""
-   var password = ""
-   var showPassword = false
-   var isLoading = false
-   var errorMessage = ""
-   var presentAlert = false
+    var username = ""
+    var email = ""
+    var password = ""
+    var confirmPassword = ""
+    var showPassword = false
+    var isLoading = false
+    var errorMessage = ""
+    var presentAlert = false
    
     func signup() async -> Bool {
+        
+        guard validateUsername() else {
+            errorMessage = "Username must be greater than 3 characters and less than 25 characters."
+            presentAlert = true
+            return false
+        }
+        
+        isLoading = true
+        
+        guard let usernameDocuments = try? await Firestore.firestore().collection("users").whereField("username", isEqualTo: username).getDocuments() else {
+            errorMessage = "Something has gone wrong. Please try again later."
+            presentAlert = true
+            isLoading = false
+            return false
+        }
+        
+        guard usernameDocuments.documents.count == 0 else {
+            errorMessage = "Username already exists."
+            presentAlert = true
+            isLoading = false
+            return false
+        }
+        
+        guard password == confirmPassword else {
+            errorMessage = "Passwords do not match"
+            presentAlert = true
+            return false
+        }
+        
         do {
-            isLoading = true
-            let result =  try await  Auth.auth().createUser(withEmail: email, password: password)
+            
+            let result = try await Auth.auth().createUser(withEmail: email, password: password)
             let userId = result.user.uid
             let userData: [String: Any] = [
                 "username": username,
@@ -33,22 +63,29 @@ class SignUpViewModel{
             isLoading = false
             return true
         } catch(let error) {
-            errorMessage = "Login Failed"
+            errorMessage = "Signup Failed"
             let errorCode = error._code
             if let authErrorCode = AuthErrorCode(rawValue: errorCode) {
                 switch authErrorCode {
                 case .emailAlreadyInUse:
                     errorMessage = "Email already in use"
                 case .invalidEmail:
-                errorMessage = "Invalid Email"
+                    errorMessage = "Invalid Email"
+                case .weakPassword:
+                    errorMessage = "Weak Password"
                 default:
-                  break
+                    break
                 }
             }
             isLoading = false
             presentAlert = true
             return false
         }
-           
     }
+
+    
+    func validateUsername() -> Bool {
+        username.count >= 3 && username.count <= 25
+    }
+    
 }

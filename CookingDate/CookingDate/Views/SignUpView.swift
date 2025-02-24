@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import FirebaseAuth
+
 
 struct SignUpView: View {
     
@@ -29,13 +29,16 @@ struct SignUpView: View {
                 Text("Password")
                     .font(.system(size: 15))
                 PasswordComponentView(showPassword: $viewModel.showPassword, password: $viewModel.password)
+                Text("Confirm Password")
+                    .font(.system(size: 15))
+                PasswordComponentView(showPassword: $viewModel.showPassword, password: $viewModel.confirmPassword)
                 
                 Button(action: {
                     Task {
                         await  viewModel.signup()
                     }
                 }, label: {
-                    Text("Sign Up")
+                    Text("Create account")
                         .font(.system(size: 15, weight: .semibold))
                         .padding(12)
                         .foregroundStyle(.white)

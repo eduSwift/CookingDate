@@ -22,7 +22,7 @@ struct CookingDateApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            HomeView()
         }
     }
 }
