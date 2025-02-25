@@ -11,6 +11,7 @@ import FirebaseAuth
 struct LoginView: View {
     
     @State var viewModel = LoginViewModel()
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         ZStack {
@@ -109,3 +110,7 @@ struct AuthTextFieldView: View {
         }
     }
 }
+
+
+
+

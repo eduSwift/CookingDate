@@ -19,10 +19,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct CookingDateApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject private var appState = AppState()
     
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            if appState.isLoggedIn {
+                HomeView()
+                    .environmentObject(appState)
+            } else {
+                LoginView()
+                    .environmentObject(appState)
+            }
         }
     }
 }
