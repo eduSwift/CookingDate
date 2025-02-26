@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
+    
     @State var viewModel = HomeViewModel()
     @State var searchText = ""
     
@@ -58,10 +59,7 @@ struct HomeView: View {
                             RecipeRow(
                                 itemWidth: itemWidth,
                                 itemHeight: itemHeight,
-                                images: ["Risotto", "Burrito", "Carbo"],
-                                titles: ["Risotto", "Burrito", "Carbonara"],
-                                time: 20,
-                                description: ""
+                                recipes: Array(Recipe.mockRecipes.prefix(3))
                             )
                             
                             SectionHeader(title: "Near you")
@@ -69,10 +67,7 @@ struct HomeView: View {
                             RecipeRow(
                                 itemWidth: itemWidth,
                                 itemHeight: itemHeight,
-                                images: ["Quinoa", "Tiramisu", "Lasagna"],
-                                titles: ["Quinoa Bowl", "Tiramisu", "Lasagna"],
-                                time: 20,
-                                description: ""
+                                recipes: Array(Recipe.mockRecipes.suffix(3))
                             )
                         }
                         .padding(.bottom, 60)
@@ -84,18 +79,21 @@ struct HomeView: View {
                             .ignoresSafeArea()
                         TabView {
                             Color.clear
+                                .background(LinearGradient.appBackground.ignoresSafeArea())
                                 .tabItem { Label("Home", systemImage: "house") }
                             
                             Color.clear
+                                .background(LinearGradient.appBackground.ignoresSafeArea())
                                 .tabItem { Label("Recipes", systemImage: "book") }
                             
                             Color.clear
+                                .background(LinearGradient.appBackground.ignoresSafeArea())
                                 .tabItem { Label("Chat", systemImage: "message") }
                             
                             Color.clear
+                                .background(LinearGradient.appBackground.ignoresSafeArea())
                                 .tabItem { Label("Profile", systemImage: "person.circle") }
                         }
-                        .background(LinearGradient.appBackground.ignoresSafeArea())
                     }
                     .frame(height: 50)
                 }
@@ -118,33 +116,31 @@ struct SectionHeader: View {
 struct RecipeRow: View {
     let itemWidth: CGFloat
     let itemHeight: CGFloat
-    let images: [String]
-    let titles: [String]
-    let time: Int
-    let description: String
-
+    let recipes: [Recipe]
+    
     
     var body: some View {
         HStack(spacing: 10) {
-            ForEach(0..<3, id: \.self) { index in
-                NavigationLink(destination: RecipeDetailView(imageName: images[index], title: titles[index])) {
+            ForEach(recipes) { recipe in
+                NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
                     VStack(alignment: .leading) {
-                        Image(images[index])
+                        Image(recipe.image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: itemWidth, height: itemHeight)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             .clipped()
                         
-                        Text(titles[index])
+                        Text(recipe.name)
                             .lineLimit(1)
                             .font(.system(size: 13, weight: .semibold))
                     }
                     .frame(width: itemWidth)
                 }
             }
+            
         }
-        .frame(maxWidth: .infinity, alignment: .leading) 
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
     }
 }

@@ -9,7 +9,6 @@ import Foundation
 
 
 @Observable
-
 class HomeViewModel {
     
 }

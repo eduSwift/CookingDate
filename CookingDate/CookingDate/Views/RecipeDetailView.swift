@@ -9,13 +9,14 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     
+    let recipe: Recipe
+    
     @State private var isLiked = false
-    let imageName: String
-    let title: String
+   
     
     var body: some View {
         VStack(alignment: .leading) {
-            Image(imageName)
+            Image(recipe.image)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(height: 250)
@@ -33,24 +34,28 @@ struct RecipeDetailView: View {
                 }
                 .padding()
                 
-                Text(title)
-                    .font(.largeTitle)
-                    .bold()
-                    .padding()
-                
+                Text(recipe.name)
+                    .font(.system(size: 22, weight: .semibold))
                 Spacer()
                 Image(systemName: "clock.fill")
                     .font(.system(size: 15))
-                Text("20 mins")
+                Text("\(recipe.time) mins")
                     .font(.system(size: 15))
+            }
+            .padding(.top)
+            .padding(.horizontal)
+            Text(recipe.description)
+                .font(.system(size: 15))
+                .padding(.top, 10)
+                .padding(.horizontal)
+            Spacer()
             }
             .navigationBarTitleDisplayMode(.inline)
             .background(LinearGradient.appBackground.ignoresSafeArea())
         }
         
-    }
 }
 
 #Preview {
-    RecipeDetailView(imageName: "", title: "")
+    RecipeDetailView(recipe: Recipe(id: "", name: "", image: "", description: "", time: 30))
 }
