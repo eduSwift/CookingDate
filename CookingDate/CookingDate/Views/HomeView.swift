@@ -59,7 +59,9 @@ struct HomeView: View {
                                 itemWidth: itemWidth,
                                 itemHeight: itemHeight,
                                 images: ["Risotto", "Burrito", "Carbo"],
-                                titles: ["Risotto by", "Burrito by", "Carbonara by"]
+                                titles: ["Risotto", "Burrito", "Carbonara"],
+                                time: 20,
+                                description: ""
                             )
                             
                             SectionHeader(title: "Near you")
@@ -68,7 +70,9 @@ struct HomeView: View {
                                 itemWidth: itemWidth,
                                 itemHeight: itemHeight,
                                 images: ["Quinoa", "Tiramisu", "Lasagna"],
-                                titles: ["Quinoa Bowl by", "Tiramisu by", "Lasagna by"]
+                                titles: ["Quinoa Bowl", "Tiramisu", "Lasagna"],
+                                time: 20,
+                                description: ""
                             )
                         }
                         .padding(.bottom, 60)
@@ -86,7 +90,7 @@ struct HomeView: View {
                                 .tabItem { Label("Recipes", systemImage: "book") }
                             
                             Color.clear
-                                .tabItem { Label("Messages", systemImage: "message") }
+                                .tabItem { Label("Chat", systemImage: "message") }
                             
                             Color.clear
                                 .tabItem { Label("Profile", systemImage: "person.circle") }
@@ -116,6 +120,9 @@ struct RecipeRow: View {
     let itemHeight: CGFloat
     let images: [String]
     let titles: [String]
+    let time: Int
+    let description: String
+
     
     var body: some View {
         HStack(spacing: 10) {
@@ -131,13 +138,13 @@ struct RecipeRow: View {
                         
                         Text(titles[index])
                             .lineLimit(1)
-                            .font(.system(size: 13, weight: .semibold)) // Smaller font for balance
+                            .font(.system(size: 13, weight: .semibold))
                     }
                     .frame(width: itemWidth)
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading) // Align rows to the left
+        .frame(maxWidth: .infinity, alignment: .leading) 
         .padding(.horizontal)
     }
 }

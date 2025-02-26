@@ -9,27 +9,45 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     
+    @State private var isLiked = false
     let imageName: String
     let title: String
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Image(imageName)
                 .resizable()
-                .aspectRatio(contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding()
+                .aspectRatio(contentMode: .fill)
+                .frame(height: 250)
+                .clipped()
             
-            Text(title)
-                .font(.largeTitle)
-                .bold()
+            HStack {
+                Button {
+                    withAnimation(.spring()) {
+                        isLiked.toggle()
+                    }
+                } label: {
+                    Image(systemName: isLiked ? "heart.fill" : "heart")
+                        .imageScale(.large)
+                        .foregroundStyle(.red)
+                }
                 .padding()
-            
-            Spacer()
+                
+                Text(title)
+                    .font(.largeTitle)
+                    .bold()
+                    .padding()
+                
+                Spacer()
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 15))
+                Text("20 mins")
+                    .font(.system(size: 15))
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .background(LinearGradient.appBackground.ignoresSafeArea())
         }
-        .navigationTitle("Recipe Details")
-        .navigationBarTitleDisplayMode(.inline)
-        .background(LinearGradient.appBackground.ignoresSafeArea())
+        
     }
 }
 
