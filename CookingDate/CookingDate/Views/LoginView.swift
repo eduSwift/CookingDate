@@ -11,7 +11,7 @@ import FirebaseAuth
 struct LoginView: View {
     
     @State var viewModel = LoginViewModel()
-    @EnvironmentObject var appState: AppState
+    @Environment(SessionManager.self) var sessionManager: SessionManager
     
     var body: some View {
         ZStack {
@@ -40,7 +40,7 @@ struct LoginView: View {
                 }
                 
                 Button(action: {
-                   
+                    sessionManager.sessionState = .loggedIn
                 }, label: {
                     Text("Login")
                         .font(.system(size: 15, weight: .semibold))

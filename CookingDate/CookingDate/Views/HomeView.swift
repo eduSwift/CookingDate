@@ -9,8 +9,10 @@ import SwiftUI
 
 struct HomeView: View {
     
-    @State var viewModel = HomeViewModel()
+   
+    @State var viewModel = ProfileViewModel()
     @State var searchText = ""
+    @Binding var selection: Int
     
     let spacing: CGFloat = 10
     let padding: CGFloat = 5
@@ -72,29 +74,12 @@ struct HomeView: View {
                         }
                         .padding(.bottom, 60)
                     }
-                    
-                    
                     ZStack {
                         LinearGradient.appBackground
                             .ignoresSafeArea()
-                        TabView {
-                            Color.clear
-                                .background(LinearGradient.appBackground.ignoresSafeArea())
-                                .tabItem { Label("Home", systemImage: "house") }
-                            
-                            Color.clear
-                                .background(LinearGradient.appBackground.ignoresSafeArea())
-                                .tabItem { Label("Recipes", systemImage: "book") }
-                            
-                            Color.clear
-                                .background(LinearGradient.appBackground.ignoresSafeArea())
-                                .tabItem { Label("Chat", systemImage: "message") }
-                            
-                            Color.clear
-                                .background(LinearGradient.appBackground.ignoresSafeArea())
-                                .tabItem { Label("Profile", systemImage: "person.circle") }
-                        }
+
                     }
+
                     .frame(height: 50)
                 }
             }
@@ -147,5 +132,5 @@ struct RecipeRow: View {
 
 
 #Preview {
-    HomeView()
+    HomeView(selection: .constant(0))
 }

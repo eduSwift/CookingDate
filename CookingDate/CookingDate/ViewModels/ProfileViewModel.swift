@@ -7,8 +7,9 @@
 
 import Foundation
 
-
 @Observable
-class HomeViewModel {
+class ProfileViewModel {
     
+    var showSignOutAlert = false
+
 }
