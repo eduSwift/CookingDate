@@ -33,22 +33,6 @@ struct HomeView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    TextField("Search recipes...", text: $searchText)
-                        .padding(.leading, 30)
-                        .padding(10)
-                        .background(Color.white.opacity(0.9))
-                        .cornerRadius(10)
-                        .overlay(
-                            HStack {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.gray)
-                                    .padding(.leading, 15)
-                                Spacer()
-                            }
-                        )
-                        .padding(.horizontal)
-                        .padding(.top)
-                    
                     ScrollView {
                         VStack(spacing: 20) {
                             Image("BFF")
@@ -84,6 +68,7 @@ struct HomeView: View {
                 }
             }
         }
+        .searchable(text: $searchText)
     }
 }
 

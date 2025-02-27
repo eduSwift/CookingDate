@@ -25,7 +25,7 @@ struct ProfileView: View {
                 Button(action: {
                     viewModel.showSignOutAlert = true
                 }, label: {
-                    Text("Log out")
+                    Text("Log Out")
                         .font(.system(size: 15, weight: .semibold))
                         .padding(12)
                         .foregroundStyle(.white)
@@ -35,10 +35,13 @@ struct ProfileView: View {
                         .padding(.horizontal)
                 })
             }
-            .alert("Are you sure you would like to sign out?",
+            .alert("Are you sure you would like to log out?",
                    isPresented: $viewModel.showSignOutAlert) {
-                Button("Sign Out", role: .destructive) {
-                    sessionManager.sessionState = .loggedOut
+                Button("Log Out", role: .destructive) {
+                    if viewModel.signOut() {
+                        sessionManager.sessionState = .loggedOut
+                    }
+                    
                 }
                 Button("Cancel", role: .cancel) {}
             }

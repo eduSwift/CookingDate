@@ -6,19 +6,22 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct ChatView: View {
     
     @Binding var selection: Int
     
     var body: some View {
-        ZStack {
-            LinearGradient.appBackground
-                .ignoresSafeArea()
-            Text("Under Construction")
-                .font(.largeTitle)
-                .bold()
-        }
+        Map()
+            .mapStyle(.standard)
+            .mapControls {
+                MapCompass()
+                MapUserLocationButton()
+                MapPitchToggle()
+                MapScaleView()
+            }
+        
     }
 }
 

@@ -40,7 +40,12 @@ struct LoginView: View {
                 }
                 
                 Button(action: {
-                    sessionManager.sessionState = .loggedIn
+                    Task {
+                        if let user = await viewModel.login() {
+                            sessionManager.currentUser = user
+                            sessionManager.sessionState = .loggedIn
+                        }
+                    }
                 }, label: {
                     Text("Login")
                         .font(.system(size: 15, weight: .semibold))
@@ -85,6 +90,14 @@ struct LoginView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(LinearGradient.appBackground)
             .ignoresSafeArea()
+            if viewModel.isLoading {
+                LoadingComponentView()
+            }
+        }
+        .alert("Error", isPresented: $viewModel.presentAlert) {
+            
+        } message: {
+            Text(viewModel.errorMessage)
         }
     }
 }

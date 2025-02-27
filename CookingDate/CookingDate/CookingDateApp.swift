@@ -11,7 +11,7 @@ import FirebaseCore
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
+   
     return true
   }
 }
@@ -24,10 +24,10 @@ struct CookingDateApp: App {
     var body: some Scene {
         WindowGroup {
             switch sessionManager.sessionState {
-            case.loggedIn:
+            case .loggedIn:
                 MainTabView()
                     .environment(sessionManager)
-            case.loggedOut:
+            case .loggedOut:
                 LoginView()
                     .environment(sessionManager)
             }

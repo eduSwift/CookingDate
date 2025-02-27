@@ -12,6 +12,7 @@ struct SignUpView: View {
     
     @State var viewModel = SignUpViewModel()
     @Environment(\.dismiss) var dismiss
+    @Environment(SessionManager.self) var sessionManager: SessionManager
     
     var body: some View {
         ZStack {
@@ -35,7 +36,9 @@ struct SignUpView: View {
                 
                 Button(action: {
                     Task {
-                        await  viewModel.signup()
+                       if let user = await  viewModel.signup() {
+                            sessionManager.sessionState = .loggedIn
+                        }
                     }
                 }, label: {
                     Text("Create account")
