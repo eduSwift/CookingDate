@@ -39,8 +39,7 @@ struct RecipeDetailView: View {
                 Spacer()
                 Image(systemName: "clock.fill")
                     .font(.system(size: 15))
-                Text("\(recipe.time) mins")
-                    .font(.system(size: 15))
+    
             }
             .padding(.top)
             .padding(.horizontal)
@@ -57,5 +56,5 @@ struct RecipeDetailView: View {
 }
 
 #Preview {
-    RecipeDetailView(recipe: Recipe(id: "", name: "", image: "", description: "", time: 30))
+    RecipeDetailView(recipe: Recipe(id: "", name: "", image: "", description: ""))
 }

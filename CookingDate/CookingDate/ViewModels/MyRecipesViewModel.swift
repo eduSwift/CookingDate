@@ -6,11 +6,27 @@
 //
 
 import Foundation
+import SwiftUI
 
 @Observable
 class MyRecipesViewModel {
     
-    var recipeName = ""
-    var preparationTime = 0
-    var description = ""
+    var recipes: [Recipe] = []
+    private let repository: RecipeRepository
+    
+    init(repository: RecipeRepository = APIRecipeRepository()) {
+        self.repository = repository
+        loadRecipes()
+    }
+    
+    func loadRecipes() {
+        Task{
+            do {
+                self.recipes = try await repository.fetchMealByName(mealName: "Salad")
+            } catch {
+                print("error loading data")
+            }
+        }
+    }
+
 }

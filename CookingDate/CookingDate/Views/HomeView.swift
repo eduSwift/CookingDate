@@ -9,8 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     
-   
-    @State var viewModel = ProfileViewModel()
+    @State var viewModel = MyRecipesViewModel()  
     @State var searchText = ""
     @Binding var selection: Int
     
@@ -42,33 +41,42 @@ struct HomeView: View {
                             
                             SectionHeader(title: "Recently added")
                             
-                            RecipeRow(
-                                itemWidth: itemWidth,
-                                itemHeight: itemHeight,
-                                recipes: Array(Recipe.mockRecipes.prefix(3))
-                            )
+                            if viewModel.recipes.isEmpty {
+                                ProgressView()
+                            } else {
+                                RecipeRow(
+                                    itemWidth: itemWidth,
+                                    itemHeight: itemHeight,
+                                    recipes: Array(viewModel.recipes.prefix(3))
+                                )
+                            }
                             
-                            SectionHeader(title: "Near you")
+                            SectionHeader(title: "Recommended to you")
                             
-                            RecipeRow(
-                                itemWidth: itemWidth,
-                                itemHeight: itemHeight,
-                                recipes: Array(Recipe.mockRecipes.suffix(3))
-                            )
+                            if viewModel.recipes.isEmpty {
+                                ProgressView()
+                            } else {
+                                RecipeRow(
+                                    itemWidth: itemWidth,
+                                    itemHeight: itemHeight,
+                                    recipes: Array(viewModel.recipes.suffix(3))
+                                )
+                            }
                         }
                         .padding(.bottom, 60)
                     }
                     ZStack {
                         LinearGradient.appBackground
                             .ignoresSafeArea()
-
                     }
-
                     .frame(height: 50)
                 }
             }
         }
         .searchable(text: $searchText)
+        .onAppear {
+            viewModel.loadRecipes()
+        }
     }
 }
 
@@ -88,18 +96,20 @@ struct RecipeRow: View {
     let itemHeight: CGFloat
     let recipes: [Recipe]
     
-    
     var body: some View {
         HStack(spacing: 10) {
             ForEach(recipes) { recipe in
                 NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
                     VStack(alignment: .leading) {
-                        Image(recipe.image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: itemWidth, height: itemHeight)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .clipped()
+                        AsyncImage(url: URL(string: recipe.image)) { image in
+                            image.resizable()
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: itemWidth, height: itemHeight)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipped()
                         
                         Text(recipe.name)
                             .lineLimit(1)
@@ -108,13 +118,11 @@ struct RecipeRow: View {
                     .frame(width: itemWidth)
                 }
             }
-            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
     }
 }
-
 
 #Preview {
     HomeView(selection: .constant(0))

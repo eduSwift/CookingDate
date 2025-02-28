@@ -6,12 +6,12 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct MyRecipesView: View {
     
     @State var viewModel = MyRecipesViewModel()
     @Binding var selection: Int
-    
     
     var body: some View {
         ZStack {
@@ -22,43 +22,50 @@ struct MyRecipesView: View {
                 Text("My Recipes")
                     .font(.system(size: 26, weight: .bold))
                     .padding(.top, 20)
+                
                 ZStack {
                     RoundedRectangle(cornerRadius: 6)
                         .fill(Color.primaryFormEntry)
                         .frame(height: 200)
+                    
                     Image(systemName: "photo.fill")
+                        .font(.largeTitle)
+                        .foregroundColor(.gray)
                 }
+                
                 Text("Recipe Name")
-                    .font(.system(size: 15, weight: . semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .padding(.top)
-                TextField("", text: $viewModel.recipeName)
+                TextField("Enter recipe name", text: .constant(""))
                     .textFieldStyle(CapsuleTextFieldStyle())
                     .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
+                    .textInputAutocapitalization(.words)
+                
                 Text("Preparation Time")
                     .font(.system(size: 15, weight: .semibold))
                     .padding(.top)
-                Picker(selection: $viewModel.preparationTime) {
+                Picker(selection: .constant(0)) {  
                     ForEach(0...120, id: \.self) { time in
                         if time % 5 == 0 {
-                            Text("\(time) mins")
-                                .font(.system(size: 15))
-                                .tag(time)
+                            Text("\(time) mins").tag(time)
                         }
                     }
                 } label: {
                     Text("Prep Time")
                 }
+                
                 Text("Cooking Instructions")
                     .font(.system(size: 15, weight: .semibold))
                     .padding(.top)
-                TextEditor(text: $viewModel.description)
+                TextEditor(text: .constant(""))  
                     .frame(height: 150)
                     .background(Color.primaryFormEntry)
                     .scrollContentBackground(.hidden)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                
                 Button(action: {
-                }, label: {
+                    viewModel.loadRecipes()
+                }) {
                     Text("Add Recipe")
                         .font(.system(size: 15, weight: .semibold))
                         .padding(12)
@@ -66,12 +73,16 @@ struct MyRecipesView: View {
                         .frame(maxWidth: .infinity)
                         .background(Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                })
+                }
+                .padding(.top, 10)
+                
+                List(viewModel.recipes, id: \.id) { recipe in
+                    Text(recipe.name)
+                }
                 
                 Spacer()
             }
             .padding(.horizontal)
-            
         }
     }
 }
