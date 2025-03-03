@@ -9,9 +9,10 @@ import SwiftUI
 
 struct HomeView: View {
     
-    @State var viewModel = MyRecipesViewModel()  
+    @State var viewModel = MealsViewModel()  
     @State var searchText = ""
     @Binding var selection: Int
+    @FocusState var isSearchFieldfocused: Bool
     
     let spacing: CGFloat = 10
     let padding: CGFloat = 5
@@ -39,29 +40,20 @@ struct HomeView: View {
                                 .scaledToFill()
                                 .padding(.vertical)
                             
-                            SectionHeader(title: "Recently added")
+                            SectionHeader(title: viewModel.searchText.isEmpty ? "Recently added" : "Search Results")
                             
-                            if viewModel.recipes.isEmpty {
+                            if viewModel.filteredRecipes.isEmpty {
+                                Text(viewModel.searchText.isEmpty ? "No recipes available" : "No results found")
+                                   
                                 ProgressView()
                             } else {
                                 RecipeRow(
                                     itemWidth: itemWidth,
                                     itemHeight: itemHeight,
-                                    recipes: Array(viewModel.recipes.prefix(3))
+                                    recipes: viewModel.filteredRecipes
                                 )
                             }
                             
-                            SectionHeader(title: "Recommended to you")
-                            
-                            if viewModel.recipes.isEmpty {
-                                ProgressView()
-                            } else {
-                                RecipeRow(
-                                    itemWidth: itemWidth,
-                                    itemHeight: itemHeight,
-                                    recipes: Array(viewModel.recipes.suffix(3))
-                                )
-                            }
                         }
                         .padding(.bottom, 60)
                     }
@@ -73,9 +65,13 @@ struct HomeView: View {
                 }
             }
         }
-        .searchable(text: $searchText)
+        .searchable(text: $viewModel.searchText, prompt: "Search recipes...")
+        .focused($isSearchFieldfocused)
         .onAppear {
             viewModel.loadRecipes()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isSearchFieldfocused = true
+            }
         }
     }
 }
@@ -94,7 +90,7 @@ struct SectionHeader: View {
 struct RecipeRow: View {
     let itemWidth: CGFloat
     let itemHeight: CGFloat
-    let recipes: [Recipe]
+    let recipes: [Meal]
     
     var body: some View {
         HStack(spacing: 10) {

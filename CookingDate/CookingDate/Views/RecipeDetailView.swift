@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     
-    let recipe: Recipe
+    let recipe: Meal
     
     @State private var isLiked = false
    
@@ -56,5 +56,5 @@ struct RecipeDetailView: View {
 }
 
 #Preview {
-    RecipeDetailView(recipe: Recipe(id: "", name: "", image: "", description: ""))
+    RecipeDetailView(recipe: Meal(id: "", name: "", image: "", description: ""))
 }

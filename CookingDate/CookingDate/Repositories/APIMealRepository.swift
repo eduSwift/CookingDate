@@ -8,17 +8,17 @@
 import Foundation
 import SwiftUI
 
-class APIRecipeRepository: RecipeRepository {
+class APIMealRepository: MealRepository {
     
     private let baseURL = "https://www.themealdb.com/api/json/v1/1"
     
-    func fetchMealByName(mealName: String) async throws -> [Recipe] {
+    func fetchMealByName(mealName: String) async throws -> [Meal] {
         let urlString = "\(baseURL)/search.php?s=\(mealName)"
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
         let (data, _) = try await URLSession.shared.data(from: url)
-        let response = try JSONDecoder().decode(RecipeResponse.self, from: data)
+        let response = try JSONDecoder().decode(MealResponse.self, from: data)
         return response.meals
     }
     

@@ -8,7 +8,7 @@
 import Foundation
 
 
-protocol RecipeRepository {
+protocol MealRepository {
     
-    func fetchMealByName(mealName: String) async throws -> [Recipe]
+    func fetchMealByName(mealName: String) async throws -> [Meal]
 }

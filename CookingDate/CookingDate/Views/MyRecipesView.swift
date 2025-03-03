@@ -10,7 +10,7 @@ import PhotosUI
 
 struct MyRecipesView: View {
     
-    @State var viewModel = MyRecipesViewModel()
+    @State var viewModel = MealsViewModel()
     @Binding var selection: Int
     
     var body: some View {
@@ -64,7 +64,7 @@ struct MyRecipesView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 
                 Button(action: {
-                    viewModel.loadRecipes()
+            
                 }) {
                     Text("Add Recipe")
                         .font(.system(size: 15, weight: .semibold))
@@ -76,13 +76,11 @@ struct MyRecipesView: View {
                 }
                 .padding(.top, 10)
                 
-                List(viewModel.recipes, id: \.id) { recipe in
-                    Text(recipe.name)
-                }
                 
                 Spacer()
             }
             .padding(.horizontal)
+           
         }
     }
 }

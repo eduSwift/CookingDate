@@ -36,6 +36,7 @@ struct MainTabView: View {
                 }
                 .tag(3)
         }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
