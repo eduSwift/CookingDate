@@ -1,18 +1,17 @@
 //
-//  ReceipeDetailView.swift
+//  RecipeDetailsView.swift
 //  CookingDate
 //
-//  Created by Eduardo Rodrigues da Cruz on 25.02.25.
+//  Created by Eduardo Rodrigues da Cruz on 03.03.25.
 //
 
 import SwiftUI
 
-struct RecipeDetailView: View {
+struct RecipeDetailsView: View {
     
-    let recipe: Meal
+    let recipe: Recipe
     
     @State private var isLiked = false
-   
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -37,9 +36,7 @@ struct RecipeDetailView: View {
                 Text(recipe.name)
                     .font(.system(size: 22, weight: .semibold))
                 Spacer()
-                Image(systemName: "clock.fill")
-                    .font(.system(size: 15))
-    
+                
             }
             .padding(.top)
             .padding(.horizontal)
@@ -48,13 +45,13 @@ struct RecipeDetailView: View {
                 .padding(.top, 10)
                 .padding(.horizontal)
             Spacer()
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .background(LinearGradient.appBackground.ignoresSafeArea())
         }
-        
+        .navigationBarTitleDisplayMode(.inline)
+        .background(LinearGradient.appBackground.ignoresSafeArea())
+    }
+    
 }
 
 #Preview {
-    RecipeDetailView(recipe: Meal(id: "", name: "", image: "", description: ""))
+    RecipeDetailsView(recipe: Recipe(id: "1", image: "", name: "", description: "", difficulty: "", ingredients: "", time: 0))
 }

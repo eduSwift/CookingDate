@@ -9,10 +9,8 @@ import SwiftUI
 
 struct HomeView: View {
     
-    @State var viewModel = MealsViewModel()  
-    @State var searchText = ""
+    @State var viewModel = MealsViewModel()
     @Binding var selection: Int
-    @FocusState var isSearchFieldfocused: Bool
     
     let spacing: CGFloat = 10
     let padding: CGFloat = 5
@@ -26,6 +24,7 @@ struct HomeView: View {
         return itemWidth * 1.2
     }
     
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -40,38 +39,42 @@ struct HomeView: View {
                                 .scaledToFill()
                                 .padding(.vertical)
                             
-                            SectionHeader(title: viewModel.searchText.isEmpty ? "Recently added" : "Search Results")
+                            SectionHeader(title: "Recently added")
+                            RecipeRowMock(
+                                itemWidth: itemWidth,
+                                itemHeight: itemHeight,
+                                recipes: Recipe.mockRecipes
+                            )
+
+                            SectionHeader(title: viewModel.searchText.isEmpty ? "Get inspired" : "Search Results")
                             
                             if viewModel.filteredRecipes.isEmpty {
                                 Text(viewModel.searchText.isEmpty ? "No recipes available" : "No results found")
-                                   
+                                    .foregroundColor(.gray)
+                                    .padding(.top, 10)
+                                
                                 ProgressView()
                             } else {
-                                RecipeRow(
+                                RecipeRowAPI(
                                     itemWidth: itemWidth,
                                     itemHeight: itemHeight,
                                     recipes: viewModel.filteredRecipes
                                 )
                             }
-                            
                         }
-                        .padding(.bottom, 60)
                     }
-                    ZStack {
-                        LinearGradient.appBackground
-                            .ignoresSafeArea()
-                    }
-                    .frame(height: 50)
+                    .padding(.bottom, 60)
                 }
+                ZStack {
+                    LinearGradient.appBackground
+                        .ignoresSafeArea()
+                }
+                .frame(height: 50)
             }
         }
         .searchable(text: $viewModel.searchText, prompt: "Search recipes...")
-        .focused($isSearchFieldfocused)
         .onAppear {
             viewModel.loadRecipes()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isSearchFieldfocused = true
-            }
         }
     }
 }
@@ -87,27 +90,60 @@ struct SectionHeader: View {
     }
 }
 
-struct RecipeRow: View {
+
+struct RecipeRowMock: View {
     let itemWidth: CGFloat
     let itemHeight: CGFloat
-    let recipes: [Meal]
-    
+    let recipes: [Recipe]
+
     var body: some View {
         HStack(spacing: 10) {
             ForEach(recipes) { recipe in
-                NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                NavigationLink(destination: RecipeDetailsView(recipe: recipe)) {
                     VStack(alignment: .leading) {
-                        AsyncImage(url: URL(string: recipe.image)) { image in
-                            image.resizable()
+                        Image(recipe.image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: itemWidth, height: itemHeight)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipped()
+
+                        Text(recipe.name)
+                            .lineLimit(1)
+                            .font(.system(size: 13, weight: .semibold))
+                    }
+                    .frame(width: itemWidth)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal)
+    }
+}
+
+
+struct RecipeRowAPI: View {
+    let itemWidth: CGFloat
+    let itemHeight: CGFloat
+    let recipes: [Meal]  
+    
+    var body: some View {
+        HStack(spacing: 10) {
+            ForEach(recipes, id: \.id) { meal in
+                NavigationLink(destination: MealDetailsView(meal: meal)) {
+                    VStack(alignment: .leading) {
+                        AsyncImage(url: URL(string: meal.image)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
                         } placeholder: {
                             ProgressView()
                         }
-                        .aspectRatio(contentMode: .fill)
                         .frame(width: itemWidth, height: itemHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .clipped()
                         
-                        Text(recipe.name)
+                        Text(meal.name)
                             .lineLimit(1)
                             .font(.system(size: 13, weight: .semibold))
                     }
@@ -123,3 +159,4 @@ struct RecipeRow: View {
 #Preview {
     HomeView(selection: .constant(0))
 }
+
