@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct HomeView: View {
-    
     @State var viewModel = MealsViewModel()
+    @State var searchText = ""
     @Binding var selection: Int
     
     let spacing: CGFloat = 10
@@ -24,55 +24,55 @@ struct HomeView: View {
         return itemWidth * 1.2
     }
     
-
+    var filteredMockRecipes: [Recipe] {
+        searchText.isEmpty ? Recipe.mockRecipes : Recipe.mockRecipes.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    var filteredMeals: [Meal] {
+        searchText.isEmpty ? viewModel.meals : viewModel.filteredRecipes
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
                 LinearGradient.appBackground
                     .ignoresSafeArea()
                 
-                VStack(spacing: 0) {
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            Image("BFF")
-                                .resizable()
-                                .scaledToFill()
-                                .padding(.vertical)
-                            
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Image("BFF")
+                            .resizable()
+                            .scaledToFill()
+                            .padding(.vertical)
+                        
+                        // Recently Added Section
+                        if !filteredMockRecipes.isEmpty {
                             SectionHeader(title: "Recently added")
-                            RecipeRowMock(
+                            RecipeRow(
                                 itemWidth: itemWidth,
                                 itemHeight: itemHeight,
-                                recipes: Recipe.mockRecipes
+                                recipes: filteredMockRecipes
                             )
-
-                            SectionHeader(title: viewModel.searchText.isEmpty ? "Get inspired" : "Search Results")
-                            
-                            if viewModel.filteredRecipes.isEmpty {
-                                Text(viewModel.searchText.isEmpty ? "No recipes available" : "No results found")
-                                    .foregroundColor(.gray)
-                                    .padding(.top, 10)
-                                
-                                ProgressView()
-                            } else {
-                                RecipeRowAPI(
-                                    itemWidth: itemWidth,
-                                    itemHeight: itemHeight,
-                                    recipes: viewModel.filteredRecipes
-                                )
-                            }
+                        }
+                        
+                        // API Meals Section
+                        if !filteredMeals.isEmpty {
+                            SectionHeader(title: searchText.isEmpty ? "Get inspired" : "Search Results")
+                            RecipeRowAPI(
+                                itemWidth: itemWidth,
+                                itemHeight: itemHeight,
+                                meals: filteredMeals
+                            )
+                        } else {
+                            Text(searchText.isEmpty ? "No recipes available" : "No results found")
+                                .foregroundColor(.gray)
                         }
                     }
                     .padding(.bottom, 60)
                 }
-                ZStack {
-                    LinearGradient.appBackground
-                        .ignoresSafeArea()
-                }
-                .frame(height: 50)
             }
         }
-        .searchable(text: $viewModel.searchText, prompt: "Search recipes...")
+        .searchable(text: $searchText, prompt: "Search recipes...")
         .onAppear {
             viewModel.loadRecipes()
         }
@@ -90,71 +90,70 @@ struct SectionHeader: View {
     }
 }
 
-
-struct RecipeRowMock: View {
+struct RecipeRow: View {
     let itemWidth: CGFloat
     let itemHeight: CGFloat
     let recipes: [Recipe]
-
+    
     var body: some View {
-        HStack(spacing: 10) {
-            ForEach(recipes) { recipe in
-                NavigationLink(destination: RecipeDetailsView(recipe: recipe)) {
-                    VStack(alignment: .leading) {
-                        Image(recipe.image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: itemWidth, height: itemHeight)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .clipped()
-
-                        Text(recipe.name)
-                            .lineLimit(1)
-                            .font(.system(size: 13, weight: .semibold))
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(recipes) { recipe in
+                    NavigationLink(destination: RecipeDetailsView(recipe: recipe)) {
+                        VStack(alignment: .leading) {
+                            Image(recipe.image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: itemWidth, height: itemHeight)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            
+                            Text(recipe.name)
+                                .lineLimit(1)
+                                .font(.system(size: 13, weight: .semibold))
+                        }
+                        .frame(width: itemWidth)
                     }
-                    .frame(width: itemWidth)
                 }
             }
+            .padding(.horizontal)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal)
     }
 }
-
 
 struct RecipeRowAPI: View {
     let itemWidth: CGFloat
     let itemHeight: CGFloat
-    let recipes: [Meal]  
+    let meals: [Meal]
     
     var body: some View {
-        HStack(spacing: 10) {
-            ForEach(recipes, id: \.id) { meal in
-                NavigationLink(destination: MealDetailsView(meal: meal)) {
-                    VStack(alignment: .leading) {
-                        AsyncImage(url: URL(string: meal.image)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            ProgressView()
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(meals) { meal in
+                    NavigationLink(destination: MealDetailsView(meal: meal)) {
+                        VStack(alignment: .leading) {
+                            AsyncImage(url: URL(string: meal.image)) { image in
+                                image.resizable()
+                            } placeholder: {
+                                ProgressView()
+                            }
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: itemWidth, height: itemHeight)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            
+                            Text(meal.name)
+                                .lineLimit(1)
+                                .font(.system(size: 13, weight: .semibold))
                         }
-                        .frame(width: itemWidth, height: itemHeight)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .clipped()
-                        
-                        Text(meal.name)
-                            .lineLimit(1)
-                            .font(.system(size: 13, weight: .semibold))
+                        .frame(width: itemWidth)
                     }
-                    .frame(width: itemWidth)
                 }
             }
+            .padding(.horizontal)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal)
     }
 }
+
+
 
 #Preview {
     HomeView(selection: .constant(0))

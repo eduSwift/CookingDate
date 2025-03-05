@@ -14,15 +14,27 @@ struct MealDetailsView: View {
     
     @State private var isLiked = false
    
-    
     var body: some View {
         VStack(alignment: .leading) {
-            Image(meal.image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: 250)
-                .clipped()
-            
+            AsyncImage(url: URL(string: meal.image)) { phase in
+                if let image = phase.image {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 250)
+                        .clipped()
+                } else if phase.error != nil {
+                    Text("Failed to load image")
+                        .frame(height: 250)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.gray.opacity(0.3))
+                } else {
+                    ProgressView()
+                        .frame(height: 250)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+
             HStack {
                 Button {
                     withAnimation(.spring()) {
@@ -38,22 +50,22 @@ struct MealDetailsView: View {
                 Text(meal.name)
                     .font(.system(size: 22, weight: .semibold))
                 Spacer()
-    
             }
             .padding(.top)
             .padding(.horizontal)
+            
             Text(meal.description)
                 .font(.system(size: 15))
                 .padding(.top, 10)
                 .padding(.horizontal)
+            
             Spacer()
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .background(LinearGradient.appBackground.ignoresSafeArea())
         }
-        
+        .navigationBarTitleDisplayMode(.inline)
+        .background(LinearGradient.appBackground.ignoresSafeArea())
+    }
 }
 
 #Preview {
-    MealDetailsView(meal: Meal(id: "", name: "", image: "", description: ""))
+    MealDetailsView(meal: Meal(id: "1234", name: "Pasta", image: "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg", description: "Delicious homemade pasta."))
 }

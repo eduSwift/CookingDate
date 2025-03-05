@@ -36,6 +36,10 @@ struct RecipeDetailsView: View {
                 Text(recipe.name)
                     .font(.system(size: 22, weight: .semibold))
                 Spacer()
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 15))
+                Text("\(recipe.time) mins")
+                    .font(.system(size: 15))
                 
             }
             .padding(.top)
@@ -44,6 +48,7 @@ struct RecipeDetailsView: View {
                 .font(.system(size: 15))
                 .padding(.top, 10)
                 .padding(.horizontal)
+                .textFieldStyle(CapsuleTextFieldStyle())
             Spacer()
         }
         .navigationBarTitleDisplayMode(.inline)

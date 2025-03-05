@@ -28,7 +28,7 @@ class MealsViewModel {
     func loadRecipes() {
         Task{
             do {
-                self.meals = try await repository.fetchMealByName(mealName: "Salad")
+                self.meals = try await repository.fetchMealByName(mealName: "a")
             } catch {
                 print("error loading data")
             }
