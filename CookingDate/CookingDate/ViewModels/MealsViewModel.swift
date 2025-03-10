@@ -12,12 +12,8 @@ import SwiftUI
 class MealsViewModel {
     
     var meals: [Meal] = []
-    var filteredRecipes: [Meal] = []
-    var searchText: String = "" {
-        didSet {
-            filterRecipes()
-        }
-    }
+    var searchText: String = ""
+    
     private let repository: MealRepository
     
     init(repository: MealRepository = APIMealRepository()) {
@@ -35,14 +31,8 @@ class MealsViewModel {
         }
     }
     
-    func filterRecipes() {
-        if searchText.isEmpty {
-            filteredRecipes = meals
-        }  else {
-            filteredRecipes = meals.filter { recipe in
-                recipe.name.localizedCaseInsensitiveContains(searchText)
-            }
-        }
+    var filteredMeals: [Meal] {
+        searchText.isEmpty ? meals : meals.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
-
 }
+

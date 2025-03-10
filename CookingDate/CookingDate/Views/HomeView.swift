@@ -24,12 +24,27 @@ struct HomeView: View {
         return itemWidth * 1.2
     }
     
-    var filteredMockRecipes: [Recipe] {
-        searchText.isEmpty ? Recipe.mockRecipes : Recipe.mockRecipes.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    enum RecipeMealItem: Identifiable {
+        case recipe(Recipe)
+        case meal(Meal)
+        
+        var id: String {
+            switch self {
+            case .recipe(let recipe): return recipe.id
+            case .meal(let meal): return meal.id
+            }
+        }
     }
     
-    var filteredMeals: [Meal] {
-        searchText.isEmpty ? viewModel.meals : viewModel.filteredRecipes
+    var recentlyAddedRecipes: [Recipe] {
+        return Recipe.mockRecipes
+    }
+    
+    var combinedFilteredRecipes: [RecipeMealItem] {
+        let mockResults = searchText.isEmpty ? recentlyAddedRecipes : recentlyAddedRecipes.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        let mealResults = searchText.isEmpty ? viewModel.meals : viewModel.filteredMeals
+        
+        return mockResults.map { RecipeMealItem.recipe($0) } + mealResults.map { RecipeMealItem.meal($0) }
     }
     
     var body: some View {
@@ -45,27 +60,55 @@ struct HomeView: View {
                             .scaledToFill()
                             .padding(.vertical)
                         
-                        // Recently Added Section
-                        if !filteredMockRecipes.isEmpty {
-                            SectionHeader(title: "Recently added")
-                            RecipeRow(
-                                itemWidth: itemWidth,
-                                itemHeight: itemHeight,
-                                recipes: filteredMockRecipes
-                            )
-                        }
-                        
-                        // API Meals Section
-                        if !filteredMeals.isEmpty {
-                            SectionHeader(title: searchText.isEmpty ? "Get inspired" : "Search Results")
-                            RecipeRowAPI(
-                                itemWidth: itemWidth,
-                                itemHeight: itemHeight,
-                                meals: filteredMeals
-                            )
+                        if !searchText.isEmpty {
+                            SectionHeader(title: "Search Results")
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 10) {
+                                    ForEach(combinedFilteredRecipes) { item in
+                                        switch item {
+                                        case .recipe(let recipe):
+                                            NavigationLink(destination: RecipeDetailsView(recipe: recipe)) {
+                                                RecipeCard(recipe: recipe, itemWidth: itemWidth, itemHeight: itemHeight)
+                                            }
+                                        case .meal(let meal):
+                                            NavigationLink(destination: MealDetailsView(meal: meal)) {
+                                                RecipeCardAPI(meal: meal, itemWidth: itemWidth, itemHeight: itemHeight)
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
                         } else {
-                            Text(searchText.isEmpty ? "No recipes available" : "No results found")
-                                .foregroundColor(.gray)
+                            // Recently added recipes section
+                            if !recentlyAddedRecipes.isEmpty {
+                                SectionHeader(title: "Recently Added")
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 10) {
+                                        ForEach(recentlyAddedRecipes) { recipe in
+                                            NavigationLink(destination: RecipeDetailsView(recipe: recipe)) {
+                                                RecipeCard(recipe: recipe, itemWidth: itemWidth, itemHeight: itemHeight)
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
+
+                            // Get inspired section (API meals)
+                            if !viewModel.meals.isEmpty {
+                                SectionHeader(title: "Get Inspired")
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 10) {
+                                        ForEach(viewModel.meals) { meal in
+                                            NavigationLink(destination: MealDetailsView(meal: meal)) {
+                                                RecipeCardAPI(meal: meal, itemWidth: itemWidth, itemHeight: itemHeight)
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
                         }
                     }
                     .padding(.bottom, 60)
@@ -90,72 +133,51 @@ struct SectionHeader: View {
     }
 }
 
-struct RecipeRow: View {
+struct RecipeCard: View {
+    let recipe: Recipe
     let itemWidth: CGFloat
     let itemHeight: CGFloat
-    let recipes: [Recipe]
-    
+
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(recipes) { recipe in
-                    NavigationLink(destination: RecipeDetailsView(recipe: recipe)) {
-                        VStack(alignment: .leading) {
-                            Image(recipe.image)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: itemWidth, height: itemHeight)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            
-                            Text(recipe.name)
-                                .lineLimit(1)
-                                .font(.system(size: 13, weight: .semibold))
-                        }
-                        .frame(width: itemWidth)
-                    }
-                }
-            }
-            .padding(.horizontal)
+        VStack(alignment: .leading) {
+            Image(recipe.image)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: itemWidth, height: itemHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Text(recipe.name)
+                .lineLimit(1)
+                .font(.system(size: 13, weight: .semibold))
         }
+        .frame(width: itemWidth)
     }
 }
 
-struct RecipeRowAPI: View {
+struct RecipeCardAPI: View {
+    let meal: Meal
     let itemWidth: CGFloat
     let itemHeight: CGFloat
-    let meals: [Meal]
-    
+
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(meals) { meal in
-                    NavigationLink(destination: MealDetailsView(meal: meal)) {
-                        VStack(alignment: .leading) {
-                            AsyncImage(url: URL(string: meal.image)) { image in
-                                image.resizable()
-                            } placeholder: {
-                                ProgressView()
-                            }
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: itemWidth, height: itemHeight)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            
-                            Text(meal.name)
-                                .lineLimit(1)
-                                .font(.system(size: 13, weight: .semibold))
-                        }
-                        .frame(width: itemWidth)
-                    }
-                }
+        VStack(alignment: .leading) {
+            AsyncImage(url: URL(string: meal.image)) { image in
+                image.resizable()
+            } placeholder: {
+                ProgressView()
             }
-            .padding(.horizontal)
+            .aspectRatio(contentMode: .fill)
+            .frame(width: itemWidth, height: itemHeight)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Text(meal.name)
+                .lineLimit(1)
+                .font(.system(size: 13, weight: .semibold))
         }
+        .frame(width: itemWidth)
     }
 }
-
-
 
 #Preview {
     HomeView(selection: .constant(0))
 }
-

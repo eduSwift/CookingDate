@@ -62,7 +62,15 @@ struct AddRecipesView: View {
                     Text("Prep Time")
                 }
                 
-                Text("Cooking Instructions")
+                Text("Difficulty")
+                    .font(.system(size: 15, weight: .semibold))
+                    .padding(.top)
+                TextField("Enter difficulty level", text: .constant(""))
+                    .textFieldStyle(CapsuleTextFieldStyle())
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.words)
+                
+                Text("Ingredients")
                     .font(.system(size: 15, weight: .semibold))
                     .padding(.top)
                 TextEditor(text: .constant(""))  
@@ -70,6 +78,8 @@ struct AddRecipesView: View {
                     .background(Color.primaryFormEntry)
                     .scrollContentBackground(.hidden)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                
+                Spacer()
                 
                 Button(action: {
             
@@ -82,8 +92,6 @@ struct AddRecipesView: View {
                         .background(Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
-                
-                Spacer()
             }
             .padding(.horizontal)
             .photosPicker(isPresented: $viewModel.showLibrary, selection: $imageLoaderViewModel.imageSelection, matching: .images, photoLibrary: .shared())

@@ -30,7 +30,7 @@ struct MainTabView: View {
                 }
                 .tag(2)
 
-            ProfileView(selection: $selectedTab)
+            CreateProfileView(selection: $selectedTab)
                 .tabItem {
                     Label("Profile", systemImage: "person.circle")
                 }

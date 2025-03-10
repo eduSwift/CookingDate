@@ -14,7 +14,7 @@ struct Recipe: Identifiable, Codable {
     let name: String
     let description: String
     let difficulty: String
-    let ingredients: String
+    let ingredients: [String]
     let time: Int
     
     init(id: String, image: String, name: String, description: String, difficulty: String, ingredients: String, time: Int) {
@@ -23,7 +23,7 @@ struct Recipe: Identifiable, Codable {
         self.name = name
         self.description = description
         self.difficulty = difficulty
-        self.ingredients = ingredients
+        self.ingredients = [ingredients]
         self.time = time
     }
 }
