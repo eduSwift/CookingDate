@@ -127,6 +127,7 @@ struct CreateProfileView: View {
                     
                     // Save Button
                     Button(action: saveProfile) {
+                        
                         Text("Save Profile")
                             .font(.headline)
                             .foregroundColor(.white)

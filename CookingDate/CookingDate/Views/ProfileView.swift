@@ -8,7 +8,7 @@
 import SwiftUI
 import MapKit
 import FirebaseFirestore
-import FirebaseStorage
+
 
 struct ProfileView: View {
     @State private var userProfiles: [UserProfile] = []
@@ -259,5 +259,5 @@ private struct EmptyStateView: View {
 
 #Preview {
     ProfileView()
-        .environment(SessionManager())
+      
 }
