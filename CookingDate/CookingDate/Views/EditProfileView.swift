@@ -15,37 +15,48 @@ struct EditProfileView: View {
     @State var profile: UserProfile
     
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Basic Information") {
-                    TextField("Age", value: $profile.age, formatter: NumberFormatter())
-                    Picker("Status", selection: $profile.status) {
-                        Text("Single").tag("Single")
-                        Text("In a Relationship").tag("In a Relationship")
-                        Text("Married").tag("Married")
+        ZStack {
+            LinearGradient.appBackground
+                .ignoresSafeArea()
+            
+            NavigationStack {
+                Form {
+                    Section("Basic Information") {
+                        TextField("Age", value: $profile.age, formatter: NumberFormatter())
+                        Picker("Status", selection: $profile.status) {
+                            Text("Single").tag("Single")
+                            Text("In a Relationship").tag("In a Relationship")
+                            Text("Married").tag("Married")
+                        }
+                    }
+                    
+                    Section("About Me") {
+                        TextEditor(text: $profile.aboutMe)
+                            .frame(minHeight: 100)
+                    }
+                    
+                    Section("Location") {
+                        Toggle("Show Location", isOn: $profile.isMobile)
+                        TextField("Location", text: $profile.locationString)
+                        
+                        // Optional: Add map integration for coordinates
+                        if let coordinates = profile.geoPoint {
+                            Text("Lat: \(coordinates.latitude), Lon: \(coordinates.longitude)")
+                                .font(.caption)
+                        }
                     }
                 }
-                
-                Section("About Me") {
-                    TextEditor(text: $profile.aboutMe)
-                        .frame(minHeight: 100)
-                }
-                
-                Section("Location") {
-                    Toggle("Show Location", isOn: $profile.isMobile)
-                    TextField("Location", text: $profile.location)
-                }
-            }
-            .navigationTitle("Edit Profile")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        saveProfile()
-                        dismiss()
+                .navigationTitle("Edit Profile")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") { dismiss() }
+                    }
+                    
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Save") {
+                            saveProfile()
+                            dismiss()
+                        }
                     }
                 }
             }
@@ -66,5 +77,19 @@ struct EditProfileView: View {
 }
 
 #Preview {
-    EditProfileView(profile: UserProfile)
+    // Provide a sample profile for previews
+    EditProfileView(profile: UserProfile(
+        profileImageURL: "",
+        username: "",
+        age: 27,
+        locationString: "",
+        aboutMe: "",
+        lookingFor: "",
+        onlineStatus: true,
+        status: "",
+        canHost: false,
+        isMobile: false
+    ))
 }
+
+

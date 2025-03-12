@@ -12,8 +12,10 @@ import FirebaseFirestore
 struct UserProfile: Identifiable, Codable, Equatable {
     @DocumentID var id: String?
     var profileImageURL: String
+    var username: String
     var age: Int
-    var location: GeoPoint?
+    var locationString: String
+    var geoPoint: GeoPoint?
     var aboutMe: String
     var lookingFor: String
     var onlineStatus: Bool
@@ -24,4 +26,5 @@ struct UserProfile: Identifiable, Codable, Equatable {
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
            lhs.id == rhs.id
        }
+    
 }

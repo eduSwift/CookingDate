@@ -2,18 +2,21 @@
 //  CreateProfileView.swift
 //  CookingDate
 //
-//  Created by Eduardo Rodrigues da Cruz on 10.03.25.
+//  Created by Eduardo Rodrigues da Cruz on 12.03.25.
 //
 
 import SwiftUI
+import PhotosUI
 import MapKit
 import FirebaseFirestore
 import FirebaseAuth
 import FirebaseStorage
-import PhotosUI
+
 
 struct CreateProfileView: View {
+    @Environment(SessionManager.self) var sessionManager
     @Binding var selection: Int
+    @State private var username: String = ""
     @State private var age: String = ""
     @State private var aboutMe: String = ""
     @State private var lookingFor: String = ""
@@ -181,9 +184,10 @@ struct CreateProfileView: View {
     func saveUserProfile(userId: String, ageInt: Int, geoPoint: GeoPoint?) {
         let userProfile = UserProfile(
             id: userId,
-            profileImageURL: profileImageURL!,
+            profileImageURL: profileImageURL ?? "",
+            username: username,
             age: ageInt,
-            location: geoPoint,
+            locationString: "",
             aboutMe: aboutMe,
             lookingFor: lookingFor,
             onlineStatus: onlineStatus,
@@ -192,16 +196,22 @@ struct CreateProfileView: View {
             isMobile: isMobile
         )
         
-        // Save the profile to Firestore
         let db = Firestore.firestore()
         do {
             try db.collection("userProfiles").document(userId).setData(from: userProfile)
             print("Profile saved successfully")
-            selection = 3 // Navigate to the next screen (if needed)
+            
+            // Update sessionManager to show ProfileDashboardView
+            DispatchQueue.main.async {
+                sessionManager.hasProfile = true
+                selection = 3 // Ensure it redirects correctly
+            }
+            
         } catch {
             print("Error saving profile: \(error.localizedDescription)")
         }
     }
+    
     
     func uploadImage(image: UIImage, completion: @escaping (URL?) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.75) else {
@@ -277,6 +287,8 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 }
 
+
 #Preview {
     CreateProfileView(selection: .constant(3))
+        .environment(SessionManager())
 }

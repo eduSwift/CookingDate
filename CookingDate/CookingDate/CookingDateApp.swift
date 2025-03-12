@@ -8,21 +8,17 @@
 import SwiftUI
 import FirebaseCore
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
-        return true
-    }
-}
 
 
 @main
 struct CookingDateApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State var sessionManager = SessionManager()
+
+    @State var sessionManager: SessionManager
+    
+    init() {
+        FirebaseApp.configure()
+        sessionManager = .init()
+    }
     
     var body: some Scene {
         WindowGroup {

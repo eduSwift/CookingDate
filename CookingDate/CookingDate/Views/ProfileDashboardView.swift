@@ -10,69 +10,87 @@ import FirebaseAuth
 import FirebaseFirestore
 
 struct ProfileDashboardView: View {
-    @EnvironmentObject var sessionManager: SessionManager
+    @Environment(SessionManager.self) var sessionManager
     @State private var userProfile: UserProfile?
     @State private var showingEditProfile = false
     @State private var showingSettings = false
+    @Binding var selection: Int
     
     var body: some View {
-        NavigationStack {
-            List {
-                // Profile Header Section
-                Section {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("DannyBl")
-                                .font(.title2.bold())
-                            Text("online")
-                                .font(.subheadline)
-                                .foregroundColor(.green)
+        ZStack {
+            LinearGradient.appBackground
+                .ignoresSafeArea()
+            
+            ScrollView {
+                if let profile = userProfile {
+                    // Profile Header Section
+                    Section {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(profile.username) // Replace with username if available
+                                    .font(.title2.bold())
+                                Text(profile.onlineStatus ? "Online" : "Offline")
+                                    .font(.subheadline)
+                                    .foregroundColor(profile.onlineStatus ? .green : .red)
+                            }
+                            Spacer()
+                            if let url = URL(string: profile.profileImageURL) {
+                                AsyncImage(url: url) { image in
+                                    image.resizable()
+                                } placeholder: {
+                                    ProgressView()
+                                }
+                                .frame(width: 60, height: 60)
+                                .clipShape(Circle())
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .resizable()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundColor(.gray)
+                            }
+
                         }
-                        Spacer()
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.vertical, 8)
-                }
-                
-                // Profile Details Section
-                Section(header: Text("My Profile")) {
-                    DetailRow(title: "My location", value: "Berlin")
-                    DetailRow(title: "Status", value: "Single")
-                    DetailRow(title: "Age", value: "27 years old")
-                    DetailRow(title: "About me",
-                            value: "Another Italian woman lost in Berlin, who loves cooking and meeting new people.")
-                }
-                
-                // Settings Section
-                Section {
-                    NavigationLink(destination: SettingsView()) {
-                        Label("Settings", systemImage: "gear")
+                        .padding(.vertical, 8)
                     }
                     
-                    Button {
-                        // Handle support
-                    } label: {
-                        Label("Support", systemImage: "questionmark.circle")
+                    // Profile Details Section
+                    Section(header: Text("My Profile")) {
+                        DetailRow(title: "My location", value: profile.locationString)
+                        DetailRow(title: "Status", value: profile.status)
+                        DetailRow(title: "Age", value: "\(profile.age) years old")
+                        DetailRow(title: "About me", value: profile.aboutMe)
+                        DetailRow(title: "Looking for", value: profile.lookingFor)
+                        DetailRow(title: "Can Host", value: profile.canHost ? "Yes" : "No")
+                        DetailRow(title: "Is Mobile", value: profile.isMobile ? "Yes" : "No")
                     }
-                }
-                
-                // Legal Section
-                Section {
-                    Button("Privacy Statement") { /* Open privacy */ }
-                    Button("Terms of use") { /* Open terms */ }
-                }
-                
-                // Logout Section
-                Section {
-                    Button(role: .destructive) {
-                        logout()
-                    } label: {
-                        Label("Log out", systemImage: "arrow.left.square.fill")
-                            .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    // Settings Section
+                    Section {
+                        NavigationLink(destination: SettingsView()) {
+                            Label("Settings", systemImage: "gear")
+                        }
+                        Button {
+                            // Handle support
+                        } label: {
+                            Label("Support", systemImage: "questionmark.circle")
+                        }
                     }
+                    
+                    // Legal Section
+                    Section {
+                        Button("Privacy Statement") { /* Open privacy */ }
+                        Button("Terms of use") { /* Open terms */ }
+                    }
+                    
+                    // Logout Section
+                    Section {
+                        Button("Sign Out", role: .destructive) {
+                            sessionManager.sessionState = .loggedOut
+                        }
+                    }
+                } else {
+                    ProgressView("Loading Profile...")
+                        .onAppear(perform: loadProfile)
                 }
             }
             .navigationTitle("My Profile")
@@ -84,9 +102,10 @@ struct ProfileDashboardView: View {
                 }
             }
             .sheet(isPresented: $showingEditProfile) {
-                EditProfileView(profile: userProfile ??, profile: UserProfile)
+                if let profile = userProfile {
+                    EditProfileView(profile: profile)
+                }
             }
-            .onAppear(perform: loadProfile)
         }
     }
     
@@ -99,36 +118,17 @@ struct ProfileDashboardView: View {
                 return
             }
             
-            userProfile = try? snapshot?.data(as: UserProfile.self)
-        }
-    }
-    
-    private func logout() {
-        do {
-            try Auth.auth().signOut()
-            sessionManager.signOut()
-        } catch {
-            print("Error signing out: \(error.localizedDescription)")
-        }
-    }
-}
-
-
-// SettingsView.swift
-struct SettingsView: View {
-    var body: some View {
-        List {
-            Section("Preferences") {
-                Toggle("Notifications", isOn: .constant(true))
-                Toggle("Dark Mode", isOn: .constant(false))
-            }
-            
-            Section("Account") {
-                Button("Change Password") { /* Implement password change */ }
-                Button("Delete Account") { /* Implement account deletion */ }
+            if let data = snapshot?.data() {
+                do {
+                    let profile = try Firestore.Decoder().decode(UserProfile.self, from: data)
+                    DispatchQueue.main.async {
+                        self.userProfile = profile
+                    }
+                } catch {
+                    print("Error decoding profile: \(error.localizedDescription)")
+                }
             }
         }
-        .navigationTitle("Settings")
     }
 }
 
@@ -142,13 +142,14 @@ struct DetailRow: View {
             Text(title)
                 .foregroundColor(.gray)
             Spacer()
-            Text(value)
+            Text(value.isEmpty ? "Not set" : value)
                 .multilineTextAlignment(.trailing)
         }
     }
 }
 
-
 #Preview {
-    ProfileDashboardView()
+    ProfileDashboardView(selection: .constant(4))
+        .environment(SessionManager())
 }
+

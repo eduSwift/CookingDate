@@ -9,6 +9,7 @@ import SwiftUI
 struct MainTabView: View {
     
     @State private var selectedTab = 0
+    @Environment(SessionManager.self) var sessionManager
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -30,12 +31,23 @@ struct MainTabView: View {
                 }
                 .tag(2)
 
-            CreateProfileView(selection: $selectedTab)
-                .tabItem {
-                    Label("Profile", systemImage: "person.circle")
-                }
-                .tag(3)
-        }
+            if sessionManager.hasProfile {
+                           ProfileDashboardView(selection: $selectedTab)
+                               .tabItem {
+                                   Label("Profile", systemImage: "person.circle")
+                               }
+                               .tag(3)
+                       } else {
+                           CreateProfileView(selection: $selectedTab)
+                               .tabItem {
+                                   Label("Profile", systemImage: "person.circle")
+                               }
+                               .tag(3)
+                       }
+                   }
+                   .onAppear {
+                       sessionManager.checkUserProfile()
+                   }
         .toolbar(.hidden, for: .navigationBar)
     }
 }
