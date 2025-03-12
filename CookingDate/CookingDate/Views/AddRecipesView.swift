@@ -10,7 +10,7 @@ import PhotosUI
 
 struct AddRecipesView: View {
     
-    @State var viewModel = RecipeViewModel()
+    @State var viewModel = AddRecipesViewModel()
     @StateObject var imageLoaderViewModel = ImageLoaderViewModel()
     
     var body: some View {
@@ -99,6 +99,7 @@ struct AddRecipesView: View {
             .onChange(of: imageLoaderViewModel.imageToUpload, { _, newValue in
                 if let newValue = newValue {
                     viewModel.displayedRecipeImage = Image(uiImage: newValue)
+                    viewModel.recipeImage = newValue
                 }
             })
             .confirmationDialog("Upload an image to your recipe", isPresented: $viewModel.showImageOptions, titleVisibility: .visible) {
