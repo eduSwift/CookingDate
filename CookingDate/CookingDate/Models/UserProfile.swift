@@ -14,14 +14,18 @@ struct UserProfile: Identifiable, Codable, Equatable {
     var profileImageURL: String
     var username: String
     var age: Int
-    var locationString: String
-    var geoPoint: GeoPoint?
     var aboutMe: String
     var lookingFor: String
     var onlineStatus: Bool
     var status: String
     var canHost: Bool
     var isMobile: Bool
+    var locationString: String
+    var geoPoint: GeoPoint?
+   
+   
+
+   
     
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
            lhs.id == rhs.id

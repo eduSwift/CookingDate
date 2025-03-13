@@ -24,6 +24,10 @@ class AddRecipesViewModel {
     var displayedRecipeImage: Image?
     var recipeImage: UIImage?
     var uploadProgress: Float = 0
+    var isUploading = false
+    
+    
+    
     
     func upload() async {
         
@@ -46,6 +50,7 @@ class AddRecipesViewModel {
         
         let metaData = StorageMetadata()
         metaData.contentType = "image/jpeg"
+        isUploading = true
         
         do {
             let _ = try await storageRef.putDataAsync(imageData, metadata: metaData) { progress in
@@ -56,9 +61,9 @@ class AddRecipesViewModel {
                 }
             }
             
-
+            isUploading = false
         } catch {
-            
+            isUploading = false
         }
         
     }

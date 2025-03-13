@@ -79,16 +79,17 @@ struct EditProfileView: View {
 #Preview {
     // Provide a sample profile for previews
     EditProfileView(profile: UserProfile(
+        id: "",
         profileImageURL: "",
         username: "",
-        age: 27,
-        locationString: "",
+        age: 20,
         aboutMe: "",
         lookingFor: "",
         onlineStatus: true,
         status: "",
         canHost: false,
-        isMobile: false
+        isMobile: false,
+        locationString: ""
     ))
 }
 

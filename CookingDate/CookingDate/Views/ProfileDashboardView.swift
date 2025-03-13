@@ -110,23 +110,34 @@ struct ProfileDashboardView: View {
     }
     
     private func loadProfile() {
-        guard let userId = Auth.auth().currentUser?.uid else { return }
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("No authenticated user found.")
+            return
+        }
         
-        Firestore.firestore().collection("userProfiles").document(userId).getDocument { snapshot, error in
+        print("Fetching profile for user ID: \(userId)")
+
+        let docRef = Firestore.firestore().collection("userProfiles").document(userId)
+        
+        docRef.getDocument { snapshot, error in
             if let error = error {
                 print("Error loading profile: \(error.localizedDescription)")
                 return
             }
             
-            if let data = snapshot?.data() {
-                do {
-                    let profile = try Firestore.Decoder().decode(UserProfile.self, from: data)
-                    DispatchQueue.main.async {
-                        self.userProfile = profile
-                    }
-                } catch {
-                    print("Error decoding profile: \(error.localizedDescription)")
+            guard let snapshot = snapshot, snapshot.exists else {
+                print("No profile found for user: \(userId)")
+                return
+            }
+
+            do {
+                let profile = try snapshot.data(as: UserProfile.self)
+                DispatchQueue.main.async {
+                    self.userProfile = profile
                 }
+                print("Profile loaded: \(profile)")
+            } catch {
+                print("Error decoding profile: \(error.localizedDescription)")
             }
         }
     }

@@ -187,13 +187,13 @@ struct CreateProfileView: View {
             profileImageURL: profileImageURL ?? "",
             username: username,
             age: ageInt,
-            locationString: "",
             aboutMe: aboutMe,
             lookingFor: lookingFor,
             onlineStatus: onlineStatus,
             status: status,
             canHost: canHost,
-            isMobile: isMobile
+            isMobile: isMobile,
+            locationString: ""
         )
         
         let db = Firestore.firestore()

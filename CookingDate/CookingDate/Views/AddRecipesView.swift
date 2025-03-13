@@ -115,6 +115,10 @@ struct AddRecipesView: View {
                 })
                
             }
+            if viewModel.isUploading {
+                ProgressComponentView(value: $viewModel.uploadProgress)
+            }
+            
         }
         
     }
