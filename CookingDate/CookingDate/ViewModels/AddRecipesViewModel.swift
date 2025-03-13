@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 import FirebaseStorage
 import FirebaseAuth
+import FirebaseFirestore
+
 
 @Observable
 class AddRecipesViewModel {
@@ -17,7 +19,7 @@ class AddRecipesViewModel {
     var preparationTime = 0
     var desctiption = ""
     var difficulty = ""
-    var ingredient = ""
+    var ingredients = ""
     var createdAt = Date()
     var showImageOptions = false
     var showLibrary = false
@@ -27,17 +29,51 @@ class AddRecipesViewModel {
     var isUploading = false
     
     
-    
-    
-    func upload() async {
+    func addRecipe() async {
         
         guard let userId = Auth.auth().currentUser?.uid else {
             return
         }
+        guard recipeName.count >= 2 else {
+            return
+        }
+        
+        guard desctiption.count >= 5 else {
+            return
+        }
+        
+        guard preparationTime != 0 else {
+            return
+        }
+        
+        guard ingredients.count >= 2 else {
+            return
+        }
+        
+        guard let imageURL = await upload() else {
+            return
+        }
+        
+        let ref = Firestore.firestore().collection("recipes").document()
+        
+        let recipe = Recipe(id: ref.documentID, image: imageURL.absoluteString, name: recipeName, description: desctiption, difficulty: difficulty, ingredients: ingredients, time: preparationTime, userId: userId)
+        
+        do {
+            try Firestore.firestore().collection("recipes").addDocument(from: recipe)
+        } catch {
+            
+        }
+    }
+    
+    func upload() async -> URL? {
+        
+        guard let userId = Auth.auth().currentUser?.uid else {
+            return nil
+        }
         
         guard let recipeImage = recipeImage,
         let imageData = recipeImage.jpegData(compressionQuality: 0.7) else {
-            return
+            return nil
         }
         
         
@@ -62,10 +98,12 @@ class AddRecipesViewModel {
             }
             
             isUploading = false
+            let donwloadURL = try await storageRef.downloadURL()
+            return donwloadURL
         } catch {
             isUploading = false
+            return nil
         }
-        
     }
 }
 

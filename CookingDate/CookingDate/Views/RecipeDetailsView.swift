@@ -61,5 +61,5 @@ struct RecipeDetailsView: View {
     }
 }
 #Preview {
-    RecipeDetailsView(recipe: Recipe(id: "1", image: "", name: "", description: "", difficulty: "", ingredients: "", time: 0))
+    RecipeDetailsView(recipe: Recipe(id: "1", image: "", name: "", description: "", difficulty: "", ingredients: "", time: 0, userId: ""))
 }

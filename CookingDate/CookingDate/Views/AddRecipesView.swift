@@ -44,15 +44,15 @@ struct AddRecipesView: View {
                 Text("Recipe Name")
                     .font(.system(size: 15, weight: .semibold))
                     .padding(.top)
-                TextField("Enter recipe name", text: .constant(""))
+                TextField("Enter recipe name", text: $viewModel.recipeName)
                     .textFieldStyle(CapsuleTextFieldStyle())
                     .autocorrectionDisabled()
-                    .textInputAutocapitalization(.words)
+                    .textInputAutocapitalization(.never)
                 
                 Text("Preparation Time")
                     .font(.system(size: 15, weight: .semibold))
                     .padding(.top)
-                Picker(selection: .constant(0)) {  
+                Picker(selection: $viewModel.preparationTime) {
                     ForEach(0...120, id: \.self) { time in
                         if time % 5 == 0 {
                             Text("\(time) mins").tag(time)
@@ -65,7 +65,7 @@ struct AddRecipesView: View {
                 Text("Difficulty")
                     .font(.system(size: 15, weight: .semibold))
                     .padding(.top)
-                TextField("Enter difficulty level", text: .constant(""))
+                TextField("Enter difficulty level", text: $viewModel.difficulty)
                     .textFieldStyle(CapsuleTextFieldStyle())
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.words)
@@ -73,7 +73,7 @@ struct AddRecipesView: View {
                 Text("Ingredients")
                     .font(.system(size: 15, weight: .semibold))
                     .padding(.top)
-                TextEditor(text: .constant(""))  
+                TextEditor(text: $viewModel.ingredients)  
                     .frame(height: 150)
                     .background(Color.primaryFormEntry)
                     .scrollContentBackground(.hidden)
@@ -82,8 +82,10 @@ struct AddRecipesView: View {
                 Spacer()
                 
                 Button(action: {
-            
-                }) {
+                    Task {
+                        await viewModel.addRecipe()
+                    }
+                }, label: {
                     Text("Save Recipe")
                         .font(.system(size: 15, weight: .semibold))
                         .padding(12)
@@ -91,7 +93,7 @@ struct AddRecipesView: View {
                         .frame(maxWidth: .infinity)
                         .background(Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
+                })
             }
             .padding(.horizontal)
             .photosPicker(isPresented: $viewModel.showLibrary, selection: $imageLoaderViewModel.imageSelection, matching: .images, photoLibrary: .shared())
