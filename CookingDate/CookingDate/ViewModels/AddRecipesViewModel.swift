@@ -17,7 +17,7 @@ class AddRecipesViewModel {
     
     var recipeName = ""
     var preparationTime = 0
-    var desctiption = ""
+    var description = ""
     var difficulty = ""
     var ingredients = ""
     var createdAt = Date()
@@ -32,36 +32,43 @@ class AddRecipesViewModel {
     func addRecipe() async {
         
         guard let userId = Auth.auth().currentUser?.uid else {
+            print("User is not logged in")
             return
         }
         guard recipeName.count >= 2 else {
+            print("Recipe name is too short")
             return
         }
         
-        guard desctiption.count >= 5 else {
+        guard description.count >= 5 else {
+            print("Description is too short")
             return
         }
         
         guard preparationTime != 0 else {
+            print("Invalid preparation time")
             return
         }
         
         guard ingredients.count >= 2 else {
+            print("Ingredients are too short")
             return
         }
         
         guard let imageURL = await upload() else {
+            print("Image upload failed")
             return
         }
         
         let ref = Firestore.firestore().collection("recipes").document()
         
-        let recipe = Recipe(id: ref.documentID, image: imageURL.absoluteString, name: recipeName, description: desctiption, difficulty: difficulty, ingredients: ingredients, time: preparationTime, userId: userId)
+        let recipe = Recipe(id: ref.documentID, image: imageURL.absoluteString, name: recipeName, description: description, difficulty: difficulty, ingredients: ingredients, time: preparationTime, userId: userId)
         
         do {
-            try Firestore.firestore().collection("recipes").addDocument(from: recipe)
+            try Firestore.firestore().collection("recipes").document(ref.documentID).setData(from: recipe)
+            print("Recipe successfully added!")
         } catch {
-            
+            print("Error adding recipe: \(error.localizedDescription)")
         }
     }
     

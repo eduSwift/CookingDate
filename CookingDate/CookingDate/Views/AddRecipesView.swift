@@ -18,86 +18,102 @@ struct AddRecipesView: View {
             LinearGradient.appBackground
                 .ignoresSafeArea()
             
-            VStack(alignment: .leading) {
-                ZStack {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.primaryFormEntry)
-                            .frame(height: 200)
-                        
-                        Image(systemName: "photo.fill")
-                    }
-                    if let displayedRecipeImage = viewModel.displayedRecipeImage {
-                        
-                        displayedRecipeImage
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(height: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .clipped()
-                    }
-                }
-                .onTapGesture {
-                    viewModel.showImageOptions = true
-                }
-                
-                Text("Recipe Name")
-                    .font(.system(size: 15, weight: .semibold))
-                    .padding(.top)
-                TextField("Enter recipe name", text: $viewModel.recipeName)
-                    .textFieldStyle(CapsuleTextFieldStyle())
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                
-                Text("Preparation Time")
-                    .font(.system(size: 15, weight: .semibold))
-                    .padding(.top)
-                Picker(selection: $viewModel.preparationTime) {
-                    ForEach(0...120, id: \.self) { time in
-                        if time % 5 == 0 {
-                            Text("\(time) mins").tag(time)
+            ScrollView {
+                VStack(spacing: 16) {
+                    Button(action: {
+                        viewModel.showImageOptions = true
+                    }) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.primaryFormEntry)
+                                .frame(height: 200)
+                                .overlay(
+                                    Group {
+                                        if let displayedImage = viewModel.displayedRecipeImage {
+                                            displayedImage
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(height: 200)
+                                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        } else {
+                                            Image(systemName: "photo.fill")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 50, height: 50)
+                                                .foregroundColor(.gray)
+                                        }
+                                    }
+                                )
                         }
                     }
-                } label: {
-                    Text("Prep Time")
-                }
-                
-                Text("Difficulty")
-                    .font(.system(size: 15, weight: .semibold))
-                    .padding(.top)
-                TextField("Enter difficulty level", text: $viewModel.difficulty)
-                    .textFieldStyle(CapsuleTextFieldStyle())
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.words)
-                
-                Text("Ingredients")
-                    .font(.system(size: 15, weight: .semibold))
-                    .padding(.top)
-                TextEditor(text: $viewModel.ingredients)  
-                    .frame(height: 150)
-                    .background(Color.primaryFormEntry)
-                    .scrollContentBackground(.hidden)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                Spacer()
-                
-                Button(action: {
-                    Task {
-                        await viewModel.addRecipe()
-                    }
-                }, label: {
-                    Text("Save Recipe")
-                        .font(.system(size: 15, weight: .semibold))
-                        .padding(12)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.black)
+                    
+                    Text("Recipe Name")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    TextField("Enter recipe name", text: $viewModel.recipeName)
+                        .padding()
+                        .background(Color.primaryFormEntry)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                })
+                    
+                    Text("Description")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    TextField("Enter recipe description", text: $viewModel.description)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(Color.primaryFormEntry)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    
+                    Text("Preparation Time")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack {
+                        Picker("Select time", selection: $viewModel.preparationTime) {
+                            ForEach(0...120, id: \.self) { time in
+                                if time % 5 == 0 {
+                                    Text("\(time) mins").tag(time)
+                                }
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    Text("Difficulty")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    TextField("Enter difficulty level", text: $viewModel.difficulty)
+                        .padding()
+                        .background(Color.primaryFormEntry)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    
+                    Text("Ingredients")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    TextField("Enter the ingredients", text: $viewModel.ingredients)
+                        .frame(height: 120)
+                        .padding(8)
+                        .background(Color.primaryFormEntry)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    
+                    Button(action: {
+                        Task {
+                            await viewModel.addRecipe()
+                        }
+                    }) {
+                        Text("Save Recipe")
+                            .font(.system(size: 18, weight: .semibold))
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.black)
+                            .foregroundColor(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                }
+                .padding()
             }
-            .padding(.horizontal)
             .photosPicker(isPresented: $viewModel.showLibrary, selection: $imageLoaderViewModel.imageSelection, matching: .images, photoLibrary: .shared())
-            
             .onChange(of: imageLoaderViewModel.imageToUpload, { _, newValue in
                 if let newValue = newValue {
                     viewModel.displayedRecipeImage = Image(uiImage: newValue)
@@ -105,26 +121,19 @@ struct AddRecipesView: View {
                 }
             })
             .confirmationDialog("Upload an image to your recipe", isPresented: $viewModel.showImageOptions, titleVisibility: .visible) {
-                Button(action: {
-                    viewModel.showLibrary = true
-                }, label: {
-                    Text("Upload from Library")
-                })
-                Button(action: {
-                    
-                }, label: {
-                    Text("Upload from Camera")
-                })
-               
-            }
-            if viewModel.isUploading {
-                ProgressComponentView(value: $viewModel.uploadProgress)
+                Button("Upload from Library") { viewModel.showLibrary = true }
+                Button("Upload from Camera") { }
             }
             
+            if viewModel.isUploading {
+                ProgressComponentView(value: $viewModel.uploadProgress)
+                    .background(Color.black.opacity(0.5))
+                    .edgesIgnoringSafeArea(.all)
+            }
         }
-        
     }
 }
+
 
 #Preview {
     AddRecipesView()
