@@ -30,23 +30,29 @@ class SessionManager {
         }
         
         Firestore.firestore().collection("userProfiles").document(userId).getDocument { snapshot, error in
-                    if let error = error {
-                        print("Error checking profile: \(error.localizedDescription)")
-                        self.hasProfile = false
-                        return
-                    }
-                    self.hasProfile = snapshot?.exists ?? false
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error checking profile: \(error.localizedDescription)")
+                    self.hasProfile = false
+                    return
                 }
+                let profileExists = snapshot?.exists ?? false
+                if profileExists != self.hasProfile {  
+                    self.hasProfile = profileExists
+                    print("Profile status updated: \(profileExists)")
+                }
+            }
+        }
     }
     
     func signOut() {
-         do {
-             try Auth.auth().signOut()
-             currentUser = nil
-             sessionState = .loggedOut
-         } catch {
-             print("Sign out error: \(error.localizedDescription)")
-         }
-     }
+        do {
+            try Auth.auth().signOut()
+            currentUser = nil
+            sessionState = .loggedOut
+        } catch {
+            print("Sign out error: \(error.localizedDescription)")
+        }
+    }
     
 }

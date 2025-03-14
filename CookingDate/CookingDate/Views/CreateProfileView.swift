@@ -26,21 +26,19 @@ struct CreateProfileView: View {
     @State private var isMobile: Bool = false
     @State private var location: CLLocationCoordinate2D?
     
-    // Image Picker
+    
     @State private var selectedImage: UIImage?
     @State private var isImagePickerPresented = false
     @State private var profileImageURL: String?
     
     var body: some View {
         ZStack {
-            // Background Gradient
             LinearGradient.appBackground
                 .ignoresSafeArea()
             
-            // Form Content
+            
             ScrollView {
                 VStack(spacing: 20) {
-                    // Profile Image Section
                     Section {
                         if let selectedImage = selectedImage {
                             Image(uiImage: selectedImage)
@@ -65,8 +63,13 @@ struct CreateProfileView: View {
                     }
                     .padding(.top, 20)
                     
-                    // Personal Information Section
                     Section {
+                        
+                        TextField("Username", text: $username)
+                            .padding()
+                            .background(Color.white.opacity(0.8))
+                            .cornerRadius(10)
+                        
                         TextField("Age", text: $age)
                             .keyboardType(.numberPad)
                             .padding()
@@ -87,17 +90,14 @@ struct CreateProfileView: View {
                             .cornerRadius(10)
                     }
                     
-                    // Location Section
                     Section {
                         Button(action: {
-                            // Set the location to the user's current location or allow them to select on a map
-                            // For now, we'll use a placeholder location
                             self.location = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
                         }) {
                             HStack {
                                 Text("Set Location")
-                                    .foregroundColor(.black) // Set text color to black
-                                Spacer() // Push the text to the left
+                                    .foregroundColor(.black)
+                                Spacer()
                             }
                         }
                         .padding()
@@ -105,7 +105,6 @@ struct CreateProfileView: View {
                         .cornerRadius(10)
                     }
                     
-                    // Status Section
                     Section {
                         Toggle("Online Status", isOn: $onlineStatus)
                             .padding()
@@ -128,7 +127,6 @@ struct CreateProfileView: View {
                             .cornerRadius(10)
                     }
                     
-                    // Save Button
                     Button(action: saveProfile) {
                         
                         Text("Save Profile")
@@ -158,7 +156,7 @@ struct CreateProfileView: View {
             return
         }
         
-        // Convert CLLocationCoordinate2D to GeoPoint
+        
         let geoPoint: GeoPoint?
         if let location = location {
             geoPoint = GeoPoint(latitude: location.latitude, longitude: location.longitude)
@@ -166,7 +164,6 @@ struct CreateProfileView: View {
             geoPoint = nil
         }
         
-        // Upload the image to Firebase Storage (if selected)
         if let selectedImage = selectedImage {
             uploadImage(image: selectedImage) { url in
                 if let url = url {
@@ -182,6 +179,13 @@ struct CreateProfileView: View {
     }
     
     func saveUserProfile(userId: String, ageInt: Int, geoPoint: GeoPoint?) {
+        let locationString: String
+        if let geoPoint = geoPoint {
+            locationString = String(format: "%.4f, %.4f", geoPoint.latitude, geoPoint.longitude)
+        } else {
+            locationString = "Not set"
+        }
+        
         let userProfile = UserProfile(
             id: userId,
             profileImageURL: profileImageURL ?? "",
@@ -193,7 +197,7 @@ struct CreateProfileView: View {
             status: status,
             canHost: canHost,
             isMobile: isMobile,
-            locationString: ""
+            locationString: locationString
         )
         
         let db = Firestore.firestore()
@@ -201,12 +205,10 @@ struct CreateProfileView: View {
             try db.collection("userProfiles").document(userId).setData(from: userProfile)
             print("Profile saved successfully")
             
-            // Update sessionManager to show ProfileDashboardView
             DispatchQueue.main.async {
                 sessionManager.hasProfile = true
-                selection = 3 // Ensure it redirects correctly
+                selection = 3
             }
-            
         } catch {
             print("Error saving profile: \(error.localizedDescription)")
         }
@@ -233,7 +235,6 @@ struct CreateProfileView: View {
                 return
             }
             
-            // Get the download URL
             imageRef.downloadURL { url, error in
                 if let error = error {
                     print("Error getting download URL: \(error.localizedDescription)")
@@ -244,49 +245,48 @@ struct CreateProfileView: View {
             }
         }
     }
-}
-
-// Image Picker
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: UIImage?
     
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var config = PHPickerConfiguration()
-        config.filter = .images
-        let picker = PHPickerViewController(configuration: config)
-        picker.delegate = context.coordinator
-        return picker
-    }
     
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        let parent: ImagePicker
+    struct ImagePicker: UIViewControllerRepresentable {
+        @Binding var selectedImage: UIImage?
         
-        init(_ parent: ImagePicker) {
-            self.parent = parent
+        func makeUIViewController(context: Context) -> PHPickerViewController {
+            var config = PHPickerConfiguration()
+            config.filter = .images
+            let picker = PHPickerViewController(configuration: config)
+            picker.delegate = context.coordinator
+            return picker
         }
         
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-            picker.dismiss(animated: true)
+        func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+        
+        func makeCoordinator() -> Coordinator {
+            Coordinator(self)
+        }
+        
+        class Coordinator: NSObject, PHPickerViewControllerDelegate {
+            let parent: ImagePicker
             
-            guard let provider = results.first?.itemProvider else { return }
+            init(_ parent: ImagePicker) {
+                self.parent = parent
+            }
             
-            if provider.canLoadObject(ofClass: UIImage.self) {
-                provider.loadObject(ofClass: UIImage.self) { image, _ in
-                    DispatchQueue.main.async {
-                        self.parent.selectedImage = image as? UIImage
+            func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+                picker.dismiss(animated: true)
+                
+                guard let provider = results.first?.itemProvider else { return }
+                
+                if provider.canLoadObject(ofClass: UIImage.self) {
+                    provider.loadObject(ofClass: UIImage.self) { image, _ in
+                        DispatchQueue.main.async {
+                            self.parent.selectedImage = image as? UIImage
+                        }
                     }
                 }
             }
         }
     }
 }
-
 
 #Preview {
     CreateProfileView(selection: .constant(3))

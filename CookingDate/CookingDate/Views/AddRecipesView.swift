@@ -10,7 +10,7 @@ import PhotosUI
 
 struct AddRecipesView: View {
     
-    @State var viewModel = RecipesViewModel()
+    @Bindable var viewModel = RecipesViewModel()
     @StateObject var imageLoaderViewModel = ImageLoaderViewModel()
     @Environment(\.dismiss) var dismiss
     
@@ -90,13 +90,26 @@ struct AddRecipesView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     
                     Text("Ingredients")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    TextField("Enter the ingredients", text: $viewModel.ingredients)
-                        .frame(height: 120)
-                        .padding(8)
-                        .background(Color.primaryFormEntry)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                         .font(.headline)
+                                         .frame(maxWidth: .infinity, alignment: .leading)
+                                     
+                                     TextEditor(text: $viewModel.ingredientsInput)
+                                         .frame(height: 150)
+                                         .padding(8)
+                                         .background(Color.primaryFormEntry)
+                                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                                         .overlay(alignment: .topLeading) {
+                                             if viewModel.ingredientsInput.isEmpty {
+                                                 Text("Start with '• ' and press return for new bullets\nExample:\n• Flour\n• Sugar\n• Milk")
+                                                     .foregroundColor(.gray)
+                                                     .padding(12)
+                                             }
+                                         }
+                                         .onAppear {
+                                             if viewModel.ingredientsInput.isEmpty {
+                                                 viewModel.ingredientsInput = "• "
+                                             }
+                                         }
                     
                     Button(action: {
                         Task {

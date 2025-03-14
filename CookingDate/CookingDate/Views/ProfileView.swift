@@ -3,7 +3,7 @@
 //  CookingDate
 //
 //  Created by Eduardo Rodrigues da Cruz on 26.02.25.
-//
+
 
 import SwiftUI
 import MapKit
@@ -261,3 +261,4 @@ private struct EmptyStateView: View {
     ProfileView()
       
 }
+

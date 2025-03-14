@@ -21,7 +21,22 @@ class RecipesViewModel {
     var preparationTime = 0
     var description = ""
     var difficulty = ""
-    var ingredients = ""
+    var ingredientsInput = "" {
+           didSet {
+               if ingredientsInput.last == "\n" {
+                   ingredientsInput += "• "
+               }
+           }
+       }
+       
+      
+       var formattedIngredients: [String] {
+           ingredientsInput
+               .components(separatedBy: "• ")
+               .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+               .filter { !$0.isEmpty }
+       }
+       
     var createdAt = Date()
     var showImageOptions = false
     var showLibrary = false
@@ -52,7 +67,7 @@ class RecipesViewModel {
             return
         }
         
-        guard ingredients.count >= 2 else {
+        guard ingredientsInput.count >= 2 else {
             handler(false)
             return
         }
@@ -62,7 +77,7 @@ class RecipesViewModel {
         isLoading = true
         let ref = Firestore.firestore().collection("recipes").document()
         
-        let recipe = Recipe(id: ref.documentID, image: imageURL.absoluteString, name: recipeName, description: description, difficulty: difficulty, ingredients: ingredients, time: preparationTime, userId: userId)
+        let recipe = Recipe(id: ref.documentID, image: imageURL.absoluteString, name: recipeName, description: description, difficulty: difficulty, ingredients: ingredientsInput, time: preparationTime, userId: userId)
         
         do {
             try Firestore.firestore().collection("recipes").document(ref.documentID).setData(from: recipe) { error in
@@ -128,7 +143,7 @@ class RecipesViewModel {
     }
     
     func observe(onChange: @escaping ([Recipe]) -> Void) throws {
-        guard let userId = Auth.auth().currentUser?.uid else {
+        guard (Auth.auth().currentUser?.uid) != nil else {
             return
         }
         Firestore.firestore().collection("recipes").addSnapshotListener(includeMetadataChanges: false) { snapshot, error in
@@ -183,7 +198,7 @@ class RecipesViewModel {
                 guard let ingredients = data["ingredients"] as? String else {
                     continue
                 }
-                guard let time = data["time"] as? Int else {
+                guard data["time"] is Int else {
                     continue
                 }
                 guard let userId = data["userId"] as? String else {
@@ -192,7 +207,7 @@ class RecipesViewModel {
                 guard let time = data["time"] as? Int else {
                     continue
                 }
-                guard let createdAt = data["createdAt"] as? Timestamp else {
+                guard data["createdAt"] is Timestamp else {
                     continue
                 }
                 let id = recipeDocument.documentID
