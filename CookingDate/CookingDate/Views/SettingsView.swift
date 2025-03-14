@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// SettingsView.swift
+
 struct SettingsView: View {
     var body: some View {
         ZStack {

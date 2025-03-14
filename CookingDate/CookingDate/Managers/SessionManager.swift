@@ -13,6 +13,7 @@ import FirebaseFirestore
 @Observable
 class SessionManager {
     
+    var isDarkMode = false
     var sessionState: SessionState = .loggedOut
     var currentUser: User?
     var hasProfile = false

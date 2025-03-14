@@ -12,6 +12,7 @@ struct HomeView: View {
     @State var viewModel2 = RecipesViewModel()
     @State var searchText = ""
     @Binding var selection: Int
+    @Environment(\.colorScheme) private var colorScheme
     
     let spacing: CGFloat = 10
     let padding: CGFloat = 5
@@ -60,6 +61,7 @@ struct HomeView: View {
                             .resizable()
                             .scaledToFill()
                             .padding(.vertical)
+                            
                         
                         if !searchText.isEmpty {
                             SectionHeader(title: "Search Results")
@@ -117,6 +119,7 @@ struct HomeView: View {
             }
         }
         .searchable(text: $searchText, prompt: "Search recipes...")
+        .preferredColorScheme(.light)
         
     }
 }

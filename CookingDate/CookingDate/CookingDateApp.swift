@@ -8,28 +8,40 @@
 import SwiftUI
 import FirebaseCore
 
-
-
 @main
 struct CookingDateApp: App {
-
     @State var sessionManager: SessionManager
     
     init() {
         FirebaseApp.configure()
-        sessionManager = .init()
+        
+    
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(named: "CardBackground")
+        appearance.titleTextAttributes = [
+            .foregroundColor: UIColor(Color("PrimaryText")),
+            .font: UIFont.systemFont(ofSize: 20, weight: .bold)
+        ]
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        
+        sessionManager = SessionManager()
     }
     
     var body: some Scene {
         WindowGroup {
-            switch sessionManager.sessionState {
-            case .loggedIn:
-                MainTabView()
-                    .environment(sessionManager)
-            case .loggedOut:
-                LoginView()
-                    .environment(sessionManager)
+            Group {
+                switch sessionManager.sessionState {
+                case .loggedIn:
+                    MainTabView()
+                case .loggedOut:
+                    LoginView()
+                }
             }
+            .environment(sessionManager)
+            .preferredColorScheme(sessionManager.isDarkMode ? .dark : .light)
         }
     }
 }

@@ -29,27 +29,28 @@ struct ProfileDashboardView: View {
                                     .font(.title.bold())
                                 
                                 HStack(spacing: 12) {
+                                    
+                                    ProfileImage(url: profile.profileImageURL)
+                                }
+                                .padding(.horizontal)
+                                .padding(.top)
+                                    
                                     StatusBadge(icon: "circle.fill",
                                                 text: profile.onlineStatus ? "Online" : "Offline",
                                                 color: profile.onlineStatus ? .green : .red)
-
-
-                                    
-                                    Text("Age: \(profile.age)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
                                 }
                             }
                             
                             Spacer()
                             
-                            ProfileImage(url: profile.profileImageURL)
-                        }
-                        .padding(.horizontal)
-                        .padding(.top)
                         
                         // Personal Info Card
                         VStack(spacing: 16) {
+                            
+                            Text("Age: \(profile.age)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
                             InfoRow(icon: "mappin.and.ellipse",
                                   title: "My Location",
                                   value: profile.locationString)
