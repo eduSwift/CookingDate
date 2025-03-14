@@ -14,31 +14,37 @@ struct MyRecipesView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                LinearGradient.appBackground.ignoresSafeArea()
-                
-                VStack {
-                    HStack {
-                        Text("My Recipes")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.black)
-                            .padding()
-                        Spacer()
-                    }
-                    
-                    if viewModel.recipes.isEmpty {
-                        Text("No recipes yet")
-                            .font(.title2)
-                            .foregroundColor(.black.opacity(0.8))
-                            .multilineTextAlignment(.center)
-                    } else {
-                        List(viewModel.recipes) { recipe in
+            VStack {
+                HStack {
+                    Text("My Recipes")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                        .padding()
+                    Spacer()
+                }
+
+                if viewModel.recipes.isEmpty {
+                    Text("No recipes yet")
+                        .font(.title2)
+                        .foregroundColor(.black.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                } else {
+                    List(viewModel.recipes) { recipe in
+                        HStack(spacing: 15) {
+                            RecipeImageView(imagePath: recipe.image)
+                                .frame(width: 80, height: 80)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            
                             Text(recipe.name)
+                                .font(.headline)
                         }
+                        .padding(.vertical, 5)
                     }
+                    .scrollContentBackground(.hidden)
                 }
             }
+            .background(LinearGradient.appBackground.ignoresSafeArea())
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
@@ -52,15 +58,32 @@ struct MyRecipesView: View {
             .navigationDestination(isPresented: $isAddingRecipe) {
                 AddRecipesView()
             }
-            .onAppear {
-                Task {
-                    await viewModel.fetchRecipes()
-                }
-            }
         }
     }
 }
 
+#Preview {
+    MyRecipesView(selection: .constant(1))
+}
+
+
+struct RecipeImageView: View {
+    let imagePath: String
+    
+    var body: some View {
+        if imagePath.hasPrefix("http") {
+            AsyncImage(url: URL(string: imagePath)) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                ProgressView()
+            }
+        } else {
+            Image(imagePath)
+                .resizable()
+                .scaledToFill()
+        }
+    }
+}
 
 
 #Preview {
