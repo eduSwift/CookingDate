@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @State var viewModel = MealsViewModel()
+    @State var viewModel2 = RecipesViewModel()
     @State var searchText = ""
     @Binding var selection: Int
     
@@ -37,7 +38,7 @@ struct HomeView: View {
     }
     
     var recentlyAddedRecipes: [Recipe] {
-        return Recipe.mockRecipes
+        return viewModel2.recipes
     }
     
     var combinedFilteredRecipes: [RecipeMealItem] {
@@ -80,12 +81,12 @@ struct HomeView: View {
                                 .padding(.horizontal)
                             }
                         } else {
-                            // Recently added recipes section
-                            if !recentlyAddedRecipes.isEmpty {
+                      
+                           
                                 SectionHeader(title: "Recently Added")
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 10) {
-                                        ForEach(recentlyAddedRecipes) { recipe in
+                                        ForEach(viewModel2.recipes) { recipe in
                                             NavigationLink(destination: RecipeDetailsView(recipe: recipe)) {
                                                 RecipeCard(recipe: recipe, itemWidth: itemWidth, itemHeight: itemHeight)
                                             }
@@ -93,9 +94,9 @@ struct HomeView: View {
                                     }
                                     .padding(.horizontal)
                                 }
-                            }
+                            
 
-                            // Get inspired section (API meals)
+                         
                             if !viewModel.meals.isEmpty {
                                 SectionHeader(title: "Get Inspired")
                                 ScrollView(.horizontal, showsIndicators: false) {
@@ -116,9 +117,7 @@ struct HomeView: View {
             }
         }
         .searchable(text: $searchText, prompt: "Search recipes...")
-        .onAppear {
-            viewModel.loadRecipes()
-        }
+        
     }
 }
 
@@ -140,12 +139,17 @@ struct RecipeCard: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Image(recipe.image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: itemWidth, height: itemHeight)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
+            AsyncImage(url: URL(string: recipe.image)) {
+                image in
+                image.resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: itemWidth, height: itemHeight)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            } placeholder: {
+                VStack {
+                    ProgressComponentView(value: .constant(0.5))
+                }
+            }
             Text(recipe.name)
                 .lineLimit(1)
                 .font(.system(size: 13, weight: .semibold))

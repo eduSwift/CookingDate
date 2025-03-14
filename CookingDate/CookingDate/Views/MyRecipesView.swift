@@ -9,14 +9,13 @@ import SwiftUI
 
 struct MyRecipesView: View {
     @State private var isAddingRecipe = false
+    @State private var viewModel = RecipesViewModel()
     @Binding var selection: Int
     
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient.appBackground
-                    .ignoresSafeArea()
-                
+                LinearGradient.appBackground.ignoresSafeArea()
                 
                 VStack {
                     HStack {
@@ -28,15 +27,16 @@ struct MyRecipesView: View {
                         Spacer()
                     }
                     
-                    Spacer()
-                    
-    
-                    Text("No recipes yet")
-                        .font(.title2)
-                        .foregroundColor(.black.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                    
-                    Spacer()
+                    if viewModel.recipes.isEmpty {
+                        Text("No recipes yet")
+                            .font(.title2)
+                            .foregroundColor(.black.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                    } else {
+                        List(viewModel.recipes) { recipe in
+                            Text(recipe.name)
+                        }
+                    }
                 }
             }
             .toolbar {
@@ -51,6 +51,11 @@ struct MyRecipesView: View {
             }
             .navigationDestination(isPresented: $isAddingRecipe) {
                 AddRecipesView()
+            }
+            .onAppear {
+                Task {
+                    await viewModel.fetchRecipes()
+                }
             }
         }
     }

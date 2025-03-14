@@ -10,8 +10,9 @@ import PhotosUI
 
 struct AddRecipesView: View {
     
-    @State var viewModel = AddRecipesViewModel()
+    @State var viewModel = RecipesViewModel()
     @StateObject var imageLoaderViewModel = ImageLoaderViewModel()
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         ZStack {
@@ -99,7 +100,15 @@ struct AddRecipesView: View {
                     
                     Button(action: {
                         Task {
-                            await viewModel.addRecipe()
+                            if let imageURL = await
+                                viewModel.upload() {
+                                viewModel.addRecipe(imageURL: imageURL) { success in
+                                    if success {
+                                        dismiss()
+                                    }
+                                }
+                            }
+                            
                         }
                     }) {
                         Text("Save Recipe")
@@ -125,10 +134,13 @@ struct AddRecipesView: View {
                 Button("Upload from Camera") { }
             }
             
-            if viewModel.isUploading {
+            if viewModel.isLoading {
                 ProgressComponentView(value: $viewModel.uploadProgress)
                     .background(Color.black.opacity(0.5))
                     .edgesIgnoringSafeArea(.all)
+            }
+            if viewModel.isLoading {
+                LoadingComponentView()
             }
         }
     }

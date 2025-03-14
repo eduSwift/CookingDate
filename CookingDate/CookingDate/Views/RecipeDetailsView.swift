@@ -16,12 +16,20 @@ struct RecipeDetailsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                Image(recipe.image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 250)
-                    .clipped()
-                
+                AsyncImage(url: URL(string: recipe.image)) {
+                    image in
+                    image.resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 250)
+                        .clipped()
+                } placeholder: {
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.gray)
+                            .frame(height: 250)
+                        Image(systemName: "photo.fill")
+                    }
+                }
                 HStack {
                     Button {
                         withAnimation(.spring()) {
