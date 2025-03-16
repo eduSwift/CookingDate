@@ -11,7 +11,7 @@ struct MyRecipesView: View {
     @State private var isAddingRecipe = false
     @State private var viewModel = RecipesViewModel()
     @Binding var selection: Int
-    @Environment(SessionManager.self) var sessionManager  // 👈 Access the logged-in user
+    @Environment(SessionManager.self) var sessionManager
 
     var body: some View {
         NavigationStack {
@@ -60,7 +60,7 @@ struct MyRecipesView: View {
                 AddRecipesView()
             }
             .onAppear {
-                loadRecipes() // 👈 Load the correct user's recipes when the view appears
+                loadRecipes() 
             }
             .onChange(of: sessionManager.currentUser?.id) {
                 loadRecipes()

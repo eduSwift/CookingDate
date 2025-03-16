@@ -15,6 +15,7 @@ struct RecipeDetailsView: View {
     @State private var isLiked = false
     @State private var creatorProfile: UserProfile?
     @State private var isChatActive = false
+    @State private var isProfileActive = false
     @State private var chatToOpen: Chat?
     
     @Environment(SessionManager.self) var sessionManager
@@ -133,7 +134,7 @@ struct RecipeDetailsView: View {
                             
                             HStack {
                                 Button("See full Profile") {
-                                    // Navigation to full profile
+                                    isProfileActive = true
                                 }
                                 .buttonStyle(.bordered)
                                 
@@ -165,6 +166,11 @@ struct RecipeDetailsView: View {
                 ChatDetailView(chat: chat)
             }
         }
+        .navigationDestination(isPresented: $isProfileActive) {
+                   if let creatorProfile = creatorProfile {
+                       ProfileCardView(profile: creatorProfile)
+                   }
+               }
         .navigationBarTitleDisplayMode(.inline)
         .background(LinearGradient.appBackground.ignoresSafeArea())
         .onAppear {
@@ -202,7 +208,7 @@ struct RecipeDetailsView: View {
             .whereField("userIds", arrayContains: currentUserId)
             .getDocuments { snapshot, error in
                 if let documents = snapshot?.documents {
-                    // Filter chats manually to find the one with both users
+                
                     if let existing = documents.first(where: {
                         let ids = $0["userIds"] as? [String] ?? []
                         return ids.contains(otherUserId) && ids.contains(currentUserId)
@@ -212,7 +218,7 @@ struct RecipeDetailsView: View {
                     }
                 }
                 
-                // If no existing chat found, create a new one
+           
                 let newChat = Chat(userIds: sortedUserIds, lastMessage: "", timestamp: Date())
                 do {
                     let ref = try db.collection("chats").addDocument(from: newChat)

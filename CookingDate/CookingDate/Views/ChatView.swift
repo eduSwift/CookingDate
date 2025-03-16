@@ -20,7 +20,7 @@ struct ChatView: View {
             ZStack {
                 LinearGradient.appBackground
                     .ignoresSafeArea()
-                
+
                 if chats.isEmpty {
                     VStack(spacing: 12) {
                         Image(systemName: "message")
@@ -37,16 +37,28 @@ struct ChatView: View {
                             ChatDetailView(chat: chat)
                         } label: {
                             HStack(spacing: 12) {
-                                Circle()
-                                    .fill(Color.blue.opacity(0.2))
+                                if let profile = otherUserProfile(for: chat),
+                                   let url = URL(string: profile.profileImageURL) {
+                                    AsyncImage(url: url) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                    } placeholder: {
+                                        Circle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .overlay(Image(systemName: "person.fill").foregroundColor(.white))
+                                    }
                                     .frame(width: 44, height: 44)
-                                    .overlay(
-                                        Image(systemName: "person.fill")
-                                            .foregroundColor(.blue)
-                                    )
+                                    .clipShape(Circle())
+                                } else {
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.3))
+                                        .frame(width: 44, height: 44)
+                                        .overlay(ProgressView())
+                                }
 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Chat")
+                                    Text(otherUserProfile(for: chat)?.username ?? "Chat")
                                         .font(.headline)
 
                                     Text(chat.lastMessage)
@@ -64,6 +76,9 @@ struct ChatView: View {
                             .padding(.vertical, 8)
                         }
                         .listRowBackground(Color.clear)
+                        .onAppear {
+                            loadOtherUserProfile(for: chat)
+                        }
                     }
                     .scrollContentBackground(.hidden)
                 }
@@ -74,6 +89,7 @@ struct ChatView: View {
             listenForChats()
         }
     }
+
 
     func listenForChats() {
         guard let userId = sessionManager.currentUser?.id else { return }
@@ -90,15 +106,17 @@ struct ChatView: View {
                 let lastCheckDate = Date(timeIntervalSince1970: lastChatCheck)
                 let newUnread = chats.filter { $0.timestamp > lastCheckDate }
                 self.unreadCount = newUnread.count
+
+
+                chats.forEach { loadOtherUserProfile(for: $0) }
             }
     }
-    
+
     func loadOtherUserProfile(for chat: Chat) {
         guard let currentUserId = sessionManager.currentUser?.id else { return }
 
         let otherUserId = chat.userIds.first { $0 != currentUserId } ?? ""
 
-      
         if userProfiles[otherUserId] != nil { return }
 
         Firestore.firestore().collection("userProfiles")
@@ -106,11 +124,19 @@ struct ChatView: View {
             .getDocument { snapshot, error in
                 guard let doc = snapshot else { return }
                 if let profile = try? doc.data(as: UserProfile.self) {
-                    userProfiles[otherUserId] = profile
+                    DispatchQueue.main.async {
+                        userProfiles[otherUserId] = profile
+                    }
                 }
             }
     }
 
+
+    func otherUserProfile(for chat: Chat) -> UserProfile? {
+        guard let currentUserId = sessionManager.currentUser?.id else { return nil }
+        let otherUserId = chat.userIds.first { $0 != currentUserId } ?? ""
+        return userProfiles[otherUserId]
+    }
 }
 
 #Preview {
