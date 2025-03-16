@@ -36,6 +36,7 @@ struct CookingDateApp: App {
                     switch sessionManager.sessionState {
                     case .loggedIn:
                         MainTabView()
+                            .environment(sessionManager)
                     case .loggedOut:
                         LoginView()
                     }
@@ -45,7 +46,6 @@ struct CookingDateApp: App {
             } else {
                 ProgressView("Loading...")
                     .onAppear {
-                        // ✅ Now it's safe to initialize Firebase-dependent code
                         sessionManager = SessionManager()
                     }
             }

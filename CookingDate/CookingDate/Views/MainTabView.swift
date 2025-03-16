@@ -5,11 +5,15 @@
 //  Created by Eduardo Rodrigues da Cruz on 26.02.25.
 
 import SwiftUI
+import FirebaseFirestore
 
 struct MainTabView: View {
     
     @State private var selectedTab = 0
+    @State private var unreadCount = 0
+    @AppStorage("lastChatCheck") var lastChatCheck: Double = 0
     @Environment(SessionManager.self) var sessionManager
+    
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -28,6 +32,7 @@ struct MainTabView: View {
             ChatView()
                 .tabItem {
                     Label("Chat", systemImage: "message")
+                        .badge(unreadCount)
                 }
                 .tag(2)
 
@@ -47,9 +52,27 @@ struct MainTabView: View {
                    }
                    .onAppear {
                        sessionManager.checkUserProfile()
+                       startChatListener()
                    }
         .toolbar(.hidden, for: .navigationBar)
     }
+    
+    func startChatListener() {
+            guard let userId = sessionManager.currentUser?.id else { return }
+
+            Firestore.firestore().collection("chats")
+                .whereField("userIds", arrayContains: userId)
+                .addSnapshotListener { snapshot, error in
+                    guard let docs = snapshot?.documents else { return }
+                    let chats = docs.compactMap { try? $0.data(as: Chat.self) }
+
+                    let lastCheck = Date(timeIntervalSince1970: lastChatCheck)
+                    let newUnread = chats.filter { $0.timestamp > lastCheck }
+
+                    self.unreadCount = newUnread.count
+                }
+        }
+    
 }
 
 #Preview {

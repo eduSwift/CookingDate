@@ -139,7 +139,7 @@ struct RecipeDetailsView: View {
                                 
                                 Button("Message") {
                                     print("📩 Message button tapped!")
-                                    startConversation()
+                                    initiateChat()
                                 }
                                 .buttonStyle(.borderedProminent)
                                 
@@ -193,73 +193,40 @@ struct RecipeDetailsView: View {
         }
     }
     
-    private func startConversation() {
-        guard let currentUser = sessionManager.currentUser else {
-            print("❌ No logged-in user found!")
-            return
-        }
-        
-        let userId = currentUser.id
-        print("✅ Starting conversation for user: \(userId) with recipe creator: \(recipe.userId)")
-        
+    private func startChat(with otherUserId: String, completion: @escaping (Chat) -> Void) {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        let sortedUserIds = [currentUserId, otherUserId].sorted()
         
         let db = Firestore.firestore()
-        let sortedUserIds = [userId, recipe.userId].sorted()
-        
         db.collection("chats")
-            .whereField("userIds", arrayContainsAny: [userId, recipe.userId])
+            .whereField("userIds", arrayContains: currentUserId)
             .getDocuments { snapshot, error in
-                if let error = error {
-                    print("❌ Error fetching existing chat: \(error.localizedDescription)")
-                    return
+                if let documents = snapshot?.documents {
+                    // Filter chats manually to find the one with both users
+                    if let existing = documents.first(where: {
+                        let ids = $0["userIds"] as? [String] ?? []
+                        return ids.contains(otherUserId) && ids.contains(currentUserId)
+                    }), let chat = try? existing.data(as: Chat.self) {
+                        completion(chat)
+                        return
+                    }
                 }
                 
-                
-                if let existingChat = snapshot?.documents.first {
-                    if let chat = try? existingChat.data(as: Chat.self) {
-                        navigateToChat(chat)
-                    }
-                } else {
-                    print("📌 No existing chat found, creating a new one...")
-                    createNewChat(userId: userId, recipeUserId: recipe.userId)
+                // If no existing chat found, create a new one
+                let newChat = Chat(userIds: sortedUserIds, lastMessage: "", timestamp: Date())
+                do {
+                    let ref = try db.collection("chats").addDocument(from: newChat)
+                    completion(Chat(id: ref.documentID, userIds: sortedUserIds, lastMessage: "", timestamp: Date()))
+                } catch {
+                    print("❌ Failed to create chat: \(error.localizedDescription)")
                 }
             }
     }
     
-    private func createNewChat(userId: String, recipeUserId: String) {
-        let sortedUserIds = [userId, recipeUserId].sorted()
-        let db = Firestore.firestore()
-        let newChat = Chat(
-            userIds: [userId, recipeUserId],
-            sortedUserIds: sortedUserIds,
-            lastMessage: "",
-            timestamp: Date()
-        )
-        
-        do {
-            let chatRef = try db.collection("chats").addDocument(from: newChat)
-            navigateToChat(Chat(
-                id: chatRef.documentID,
-                userIds: newChat.userIds,
-                sortedUserIds: sortedUserIds,
-                lastMessage: "",
-                timestamp: newChat.timestamp
-            ))
-        } catch {
-            print("Error creating chat: \(error.localizedDescription)")
-        }
-    }
-    
-    
-    
-    private func navigateToChat(_ chat: Chat) {
-        self.chatToOpen = chat
-        self.isChatActive = true
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.rootViewController = UIHostingController(rootView: ChatDetailView(chat: chat))
-            window.makeKeyAndVisible()
+    private func initiateChat() {
+        startChat(with: recipe.userId) { chat in
+            self.chatToOpen = chat
+            self.isChatActive = true
         }
     }
 }

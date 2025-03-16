@@ -8,33 +8,29 @@
 import Foundation
 import Firebase
 import FirebaseAuth
+import FirebaseFirestore
 
 @Observable
 class ChatViewModel {
     var messages: [Message] = []
+    private var chatId: String
     private var listener: ListenerRegistration?
-    private var conversationId: String
     
-    init(conversationId: String) {
-        self.conversationId = conversationId
+    
+    init(chatId: String) {
+        self.chatId = chatId
         listenForMessages()
     }
     
     private func listenForMessages() {
         let db = Firestore.firestore()
-        
         listener = db.collection("chats")
-            .document(conversationId)
+            .document(chatId)
             .collection("messages")
             .order(by: "timestamp")
             .addSnapshotListener { snapshot, error in
-                guard let documents = snapshot?.documents else {
-                    print("Error fetching messages: \(error?.localizedDescription ?? "")")
-                    return
-                }
-                
-                self.messages = documents.compactMap { document in
-                    try? document.data(as: Message.self)
+                if let documents = snapshot?.documents {
+                    self.messages = documents.compactMap { try? $0.data(as: Message.self) }
                 }
             }
     }
@@ -43,7 +39,7 @@ class ChatViewModel {
         guard let userId = Auth.auth().currentUser?.uid else { return }
         
         let message = Message(
-            chatId: conversationId,
+            chatId: chatId,
             senderId: userId,
             text: text,
             timestamp: Date()
@@ -52,11 +48,11 @@ class ChatViewModel {
         let db = Firestore.firestore()
         do {
             try db.collection("chats")
-                .document(conversationId)
+                .document(chatId)
                 .collection("messages")
                 .addDocument(from: message)
             
-            db.collection("chats").document(conversationId).updateData([
+            db.collection("chats").document(chatId).updateData([
                 "lastMessage": text,
                 "timestamp": Date()
             ])
