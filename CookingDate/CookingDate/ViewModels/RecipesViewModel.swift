@@ -45,6 +45,22 @@ class RecipesViewModel {
     var uploadProgress: Float = 0
     var isLoading = false
     
+    func fetchUserRecipes(userId: String) {
+            Firestore.firestore().collection("recipes")
+                .whereField("userId", isEqualTo: userId)
+                .getDocuments { snapshot, error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            print("Error fetching recipes: \(error.localizedDescription)")
+                            self.recipes = [] // Clear recipes on error
+                            return
+                        }
+                        self.recipes = snapshot?.documents.compactMap { doc in
+                            try? doc.data(as: Recipe.self)
+                        } ?? []
+                    }
+                }
+        }
     
     func addRecipe(imageURL: URL, handler: @escaping (_ success: Bool) -> Void) {
         
@@ -222,7 +238,6 @@ class RecipesViewModel {
         } catch {
             
         }
-        
     }
 }
 

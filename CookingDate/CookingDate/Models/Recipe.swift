@@ -9,15 +9,15 @@ import Foundation
 
 
 struct Recipe: Identifiable, Codable {
-    let id: String
-    let image: String
-    let name: String
-    let description: String
-    let difficulty: String
-    let ingredients: [String]
-    let time: Int
-    let createdAt: Date
-    let userId: String
+    var id: String
+    var image: String
+    var name: String
+    var description: String
+    var difficulty: String
+    var ingredients: [String]
+    var time: Int
+    var createdAt: Date
+    var userId: String
     
     init(id: String, image: String, name: String, description: String, difficulty: String, ingredients: String, time: Int, userId: String) {
         self.id = id

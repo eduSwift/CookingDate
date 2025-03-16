@@ -24,9 +24,6 @@ struct UserProfile: Identifiable, Codable, Equatable {
     var geoPoint: GeoPoint?
    
    
-
-   
-    
     static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
            lhs.id == rhs.id
        }

@@ -25,7 +25,7 @@ struct MainTabView: View {
                 }
                 .tag(1)
 
-            ChatView(selection: $selectedTab)
+            ChatView()
                 .tabItem {
                     Label("Chat", systemImage: "message")
                 }

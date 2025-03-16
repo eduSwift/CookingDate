@@ -7,12 +7,17 @@
 
 import SwiftUI
 import FirebaseFirestore
+import FirebaseAuth
 
 struct RecipeDetailsView: View {
     
     let recipe: Recipe
     @State private var isLiked = false
     @State private var creatorProfile: UserProfile?
+    @State private var isChatActive = false
+    @State private var chatToOpen: Chat?
+    
+    @Environment(SessionManager.self) var sessionManager
     
     var body: some View {
         ScrollView {
@@ -133,11 +138,14 @@ struct RecipeDetailsView: View {
                                 .buttonStyle(.bordered)
                                 
                                 Button("Message") {
-                                    // Start conversation
+                                    print("📩 Message button tapped!")
+                                    startConversation()
                                 }
                                 .buttonStyle(.borderedProminent)
+                                
                             }
                         }
+                        
                         .padding()
                         .background(Color.white.opacity(0.9))
                         .cornerRadius(15)
@@ -150,6 +158,11 @@ struct RecipeDetailsView: View {
                 .padding()
                 
                 Spacer()
+            }
+        }
+        .navigationDestination(isPresented: $isChatActive) {
+            if let chat = chatToOpen {
+                ChatDetailView(chat: chat)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -177,6 +190,76 @@ struct RecipeDetailsView: View {
             } catch {
                 print("Error decoding creator profile: \(error.localizedDescription)")
             }
+        }
+    }
+    
+    private func startConversation() {
+        guard let currentUser = sessionManager.currentUser else {
+            print("❌ No logged-in user found!")
+            return
+        }
+        
+        let userId = currentUser.id
+        print("✅ Starting conversation for user: \(userId) with recipe creator: \(recipe.userId)")
+        
+        
+        let db = Firestore.firestore()
+        let sortedUserIds = [userId, recipe.userId].sorted()
+        
+        db.collection("chats")
+            .whereField("userIds", arrayContainsAny: [userId, recipe.userId])
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("❌ Error fetching existing chat: \(error.localizedDescription)")
+                    return
+                }
+                
+                
+                if let existingChat = snapshot?.documents.first {
+                    if let chat = try? existingChat.data(as: Chat.self) {
+                        navigateToChat(chat)
+                    }
+                } else {
+                    print("📌 No existing chat found, creating a new one...")
+                    createNewChat(userId: userId, recipeUserId: recipe.userId)
+                }
+            }
+    }
+    
+    private func createNewChat(userId: String, recipeUserId: String) {
+        let sortedUserIds = [userId, recipeUserId].sorted()
+        let db = Firestore.firestore()
+        let newChat = Chat(
+            userIds: [userId, recipeUserId],
+            sortedUserIds: sortedUserIds,
+            lastMessage: "",
+            timestamp: Date()
+        )
+        
+        do {
+            let chatRef = try db.collection("chats").addDocument(from: newChat)
+            navigateToChat(Chat(
+                id: chatRef.documentID,
+                userIds: newChat.userIds,
+                sortedUserIds: sortedUserIds,
+                lastMessage: "",
+                timestamp: newChat.timestamp
+            ))
+        } catch {
+            print("Error creating chat: \(error.localizedDescription)")
+        }
+    }
+    
+    
+    
+    private func navigateToChat(_ chat: Chat) {
+        self.chatToOpen = chat
+        self.isChatActive = true
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController = UIHostingController(rootView: ChatDetailView(chat: chat))
+            window.makeKeyAndVisible()
         }
     }
 }

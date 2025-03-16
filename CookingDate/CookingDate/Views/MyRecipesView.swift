@@ -11,7 +11,8 @@ struct MyRecipesView: View {
     @State private var isAddingRecipe = false
     @State private var viewModel = RecipesViewModel()
     @Binding var selection: Int
-    
+    @Environment(SessionManager.self) var sessionManager  // 👈 Access the logged-in user
+
     var body: some View {
         NavigationStack {
             VStack {
@@ -58,14 +59,24 @@ struct MyRecipesView: View {
             .navigationDestination(isPresented: $isAddingRecipe) {
                 AddRecipesView()
             }
+            .onAppear {
+                loadRecipes() // 👈 Load the correct user's recipes when the view appears
+            }
+            .onChange(of: sessionManager.currentUser?.id) {
+                loadRecipes()
+            }
+
         }
     }
-}
 
-#Preview {
-    MyRecipesView(selection: .constant(1))
-}
-
+    private func loadRecipes() {
+          guard let userId = sessionManager.currentUser?.id else {
+              viewModel.recipes = [] // No user logged in → Clear recipes
+              return
+          }
+          viewModel.fetchUserRecipes(userId: userId) // ✅ Fetch only logged-in user's recipes
+      }
+  }
 
 struct RecipeImageView: View {
     let imagePath: String
