@@ -14,6 +14,8 @@ struct UserProfile: Identifiable, Codable, Equatable {
     var profileImageURL: String
     var username: String
     var age: Int
+    var gender: String
+    var orientation: String
     var aboutMe: String
     var lookingFor: String
     var onlineStatus: Bool

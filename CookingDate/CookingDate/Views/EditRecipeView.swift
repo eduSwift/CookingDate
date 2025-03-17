@@ -97,7 +97,7 @@ struct EditRecipeView: View {
                     Button("Save Changes") {
                         Task {
                             var imageURL: URL? = URL(string: recipe.image)
-                            if let newImage = viewModel.recipeImage {
+                            if viewModel.recipeImage != nil {
                                 imageURL = await viewModel.upload()
                             }
                             guard let finalURL = imageURL else { return }

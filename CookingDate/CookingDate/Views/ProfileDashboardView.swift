@@ -44,7 +44,6 @@ struct ProfileDashboardView: View {
                             Spacer()
                             
                         
-                        // Personal Info Card
                         VStack(spacing: 16) {
                             
                             Text("Age: \(profile.age)")
@@ -58,6 +57,14 @@ struct ProfileDashboardView: View {
                             InfoRow(icon: "person.fill",
                                   title: "Status",
                                   value: profile.status)
+                            
+                            InfoRow(icon: "person",
+                                  title: "Gender",
+                                    value: profile.gender)
+                            
+                            InfoRow(icon: "figure.2.arms.open",
+                                  title: "Status",
+                                    value: profile.orientation)
                             
                             InfoRow(icon: "info.circle",
                                     title: "About Me",
@@ -80,7 +87,7 @@ struct ProfileDashboardView: View {
                         }
                         .cardStyle()
                         
-                        // Actions Section
+                  
                         VStack(spacing: 12) {
                             NavigationLink(destination: SettingsView()) {
                                 ActionButton(label: "Settings", icon: "gear")
@@ -126,7 +133,7 @@ struct ProfileDashboardView: View {
             }
             .sheet(isPresented: $showingEditProfile) {
                 if let profile = userProfile {
-                    EditProfileView(profile: profile)
+                    EditProfileView()
                 }
             }
             .onAppear {
@@ -171,7 +178,7 @@ struct ProfileDashboardView: View {
     }
 }
 
-// MARK: - Custom Components
+
 struct ProfileImage: View {
     let url: String
     
@@ -218,7 +225,7 @@ struct InfoRow: View {
                 Text(value.isEmpty ? "Not set" : value)
                     .font(.body)
                     .foregroundColor(.primary)
-                    .fixedSize(horizontal: false, vertical: true) // Fixes multiline issue
+                    .fixedSize(horizontal: false, vertical: true) 
             }
             
             Spacer()
@@ -263,7 +270,7 @@ struct ActionButton: View {
     }
 }
 
-// MARK: - View Modifiers
+
 struct CardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
