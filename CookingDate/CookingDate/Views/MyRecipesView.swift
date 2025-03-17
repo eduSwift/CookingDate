@@ -14,10 +14,10 @@ struct MyRecipesView: View {
     @Environment(SessionManager.self) var sessionManager
 
     var body: some View {
-        ZStack {
-            LinearGradient.appBackground.ignoresSafeArea()
-            
-            NavigationStack {
+        NavigationStack {
+            ZStack {
+                LinearGradient.appBackground.ignoresSafeArea()
+
                 VStack {
                     HStack {
                         Text("My Recipes")
@@ -29,10 +29,12 @@ struct MyRecipesView: View {
                     }
 
                     if viewModel.recipes.isEmpty {
+                        Spacer()
                         Text("No recipes yet")
                             .font(.title2)
                             .foregroundColor(.black.opacity(0.8))
                             .multilineTextAlignment(.center)
+                        Spacer()
                     } else {
                         List {
                             ForEach(viewModel.recipes) { recipe in
@@ -65,7 +67,6 @@ struct MyRecipesView: View {
                         .scrollContentBackground(.hidden)
                     }
                 }
-                .background(LinearGradient.appBackground.ignoresSafeArea())
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {

@@ -13,6 +13,7 @@ import FirebaseStorage
 import FirebaseAuth
 import FirebaseFirestore
 
+@MainActor
 @Observable
 class RecipesViewModel {
     var recipes: [Recipe] = []
@@ -186,6 +187,7 @@ class RecipesViewModel {
     init() {
         observeRecipes()
     }
+
 
     func fetchRecipes() async {
         guard let userId = Auth.auth().currentUser?.uid else {

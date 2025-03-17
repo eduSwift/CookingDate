@@ -7,13 +7,12 @@
 
 import SwiftUI
 
-
 struct SettingsView: View {
     var body: some View {
         ZStack {
             LinearGradient.appBackground
                 .ignoresSafeArea()
-            
+
             List {
                 Section("Preferences") {
                     Toggle("Notifications", isOn: .constant(true))
@@ -25,11 +24,15 @@ struct SettingsView: View {
                     Button("Delete Account") { /* Implement account deletion */ }
                 }
             }
+            .scrollContentBackground(.hidden) // Hides default List background
+            .background(Color.clear) // Ensures List background is transparent
             .navigationTitle("Settings")
         }
     }
 }
 
 #Preview {
-    SettingsView()
+    NavigationStack {
+        SettingsView()
+    }
 }

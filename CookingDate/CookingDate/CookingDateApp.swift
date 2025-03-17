@@ -5,14 +5,13 @@
 //  Created by Eduardo Rodrigues da Cruz on 11.02.25.
 //
 
-
-
 import SwiftUI
 import FirebaseCore
 
 @main
 struct CookingDateApp: App {
     @State private var sessionManager: SessionManager?
+    @State private var showLaunch = true
 
     init() {
         FirebaseApp.configure()
@@ -31,7 +30,14 @@ struct CookingDateApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if let sessionManager {
+            if showLaunch {
+                LaunchAnimationView()
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                            showLaunch = false
+                        }
+                    }
+            } else if let sessionManager {
                 Group {
                     switch sessionManager.sessionState {
                     case .loggedIn:
