@@ -105,59 +105,62 @@ struct ProfileCardView: View {
     let profile: UserProfile
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                // Profile Image with nil coalescing
-                AsyncImage(url: URL(string: profile.profileImageURL)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    } else if phase.error != nil {
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .foregroundColor(.gray)
-                    } else {
-                        ProgressView()
+        ZStack {
+            LinearGradient.appBackground
+                .ignoresSafeArea()
+                VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top) {
+                    AsyncImage(url: URL(string: profile.profileImageURL)) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        } else if phase.error != nil {
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .foregroundColor(.gray)
+                        } else {
+                            ProgressView()
+                        }
                     }
-                }
-                .frame(width: 80, height: 80)
-                .clipShape(Circle())
-                .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                .shadow(radius: 5)
-                
-                VStack(alignment: .leading, spacing: 6) {
-                   
-                    Text("Age: \(profile.age)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .shadow(radius: 5)
                     
-                    HStack {
-                        StatusIndicator(status: profile.status)
-                        HostingIndicator(canHost: profile.canHost)
+                    VStack(alignment: .leading, spacing: 6) {
+                        
+                        Text("Age: \(profile.age)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        HStack {
+                            StatusIndicator(status: profile.status)
+                            HostingIndicator(canHost: profile.canHost)
+                        }
                     }
+                    .padding(.leading, 8)
                 }
-                .padding(.leading, 8)
+                
+                // About Section
+                InfoSection(title: "About Me", content: profile.aboutMe)
+                
+                // Looking For Section
+                InfoSection(title: "Looking For", content: profile.lookingFor)
+                
+                // Additional Info
+                HStack {
+                    AttributeBadge(icon: "mappin.and.ellipse",
+                                   text: profile.isMobile ? "Mobile" : "Stationary")
+                    AttributeBadge(icon: "house.fill",
+                                   text: profile.canHost ? "Can Host" : "Can't Host")
+                }
             }
-            
-            // About Section
-            InfoSection(title: "About Me", content: profile.aboutMe)
-            
-            // Looking For Section
-            InfoSection(title: "Looking For", content: profile.lookingFor)
-            
-            // Additional Info
-            HStack {
-                AttributeBadge(icon: "mappin.and.ellipse",
-                              text: profile.isMobile ? "Mobile" : "Stationary")
-                AttributeBadge(icon: "house.fill",
-                              text: profile.canHost ? "Can Host" : "Can't Host")
-            }
+            .padding()
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(15)
+            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
         }
-        .padding()
-        .background(Color.white.opacity(0.9))
-        .cornerRadius(15)
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
     }
 }
 
