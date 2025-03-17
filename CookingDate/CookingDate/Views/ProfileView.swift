@@ -142,13 +142,11 @@ struct ProfileCardView: View {
                     .padding(.leading, 8)
                 }
                 
-                // About Section
                 InfoSection(title: "About Me", content: profile.aboutMe)
                 
-                // Looking For Section
                 InfoSection(title: "Looking For", content: profile.lookingFor)
                 
-                // Additional Info
+
                 HStack {
                     AttributeBadge(icon: "mappin.and.ellipse",
                                    text: profile.isMobile ? "Mobile" : "Stationary")

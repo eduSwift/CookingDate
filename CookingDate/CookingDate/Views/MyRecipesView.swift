@@ -14,69 +14,95 @@ struct MyRecipesView: View {
     @Environment(SessionManager.self) var sessionManager
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                HStack {
-                    Text("My Recipes")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.black)
-                        .padding()
-                    Spacer()
-                }
+        ZStack {
+            LinearGradient.appBackground.ignoresSafeArea()
+            
+            NavigationStack {
+                VStack {
+                    HStack {
+                        Text("My Recipes")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                            .padding()
+                        Spacer()
+                    }
 
-                if viewModel.recipes.isEmpty {
-                    Text("No recipes yet")
-                        .font(.title2)
-                        .foregroundColor(.black.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                } else {
-                    List(viewModel.recipes) { recipe in
-                        HStack(spacing: 15) {
-                            RecipeImageView(imagePath: recipe.image)
-                                .frame(width: 80, height: 80)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                            
-                            Text(recipe.name)
-                                .font(.headline)
+                    if viewModel.recipes.isEmpty {
+                        Text("No recipes yet")
+                            .font(.title2)
+                            .foregroundColor(.black.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                    } else {
+                        List {
+                            ForEach(viewModel.recipes) { recipe in
+                                HStack(spacing: 15) {
+                                    RecipeImageView(imagePath: recipe.image)
+                                        .frame(width: 80, height: 80)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    
+                                    Text(recipe.name)
+                                        .font(.headline)
+                                }
+                                .padding(.vertical, 5)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        viewModel.deleteRecipe(recipe)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+
+                                    Button {
+                                        viewModel.recipeToEdit = recipe
+                                        viewModel.isEditingRecipe = true
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
+                                }
+                            }
                         }
-                        .padding(.vertical, 5)
-                    }
-                    .scrollContentBackground(.hidden)
-                }
-            }
-            .background(LinearGradient.appBackground.ignoresSafeArea())
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        isAddingRecipe = true
-                    }) {
-                        Image(systemName: "plus")
-                            .foregroundStyle(.black)
+                        .scrollContentBackground(.hidden)
                     }
                 }
+                .background(LinearGradient.appBackground.ignoresSafeArea())
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            isAddingRecipe = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .foregroundStyle(.black)
+                        }
+                    }
+                }
+                .navigationDestination(isPresented: $isAddingRecipe) {
+                    AddRecipesView()
+                }
+                .sheet(isPresented: $viewModel.isEditingRecipe) {
+                    if let recipe = viewModel.recipeToEdit {
+                        EditRecipeView(recipe: recipe)
+                    }
+                }
+                .onAppear {
+                    loadRecipes()
+                }
+                .onChange(of: sessionManager.currentUser?.id) {
+                    loadRecipes()
+                }
             }
-            .navigationDestination(isPresented: $isAddingRecipe) {
-                AddRecipesView()
-            }
-            .onAppear {
-                loadRecipes() 
-            }
-            .onChange(of: sessionManager.currentUser?.id) {
-                loadRecipes()
-            }
-
         }
     }
 
     private func loadRecipes() {
-          guard let userId = sessionManager.currentUser?.id else {
-              viewModel.recipes = [] // No user logged in → Clear recipes
-              return
-          }
-          viewModel.fetchUserRecipes(userId: userId) // ✅ Fetch only logged-in user's recipes
-      }
-  }
+        guard let userId = sessionManager.currentUser?.id else {
+            viewModel.recipes = []
+            return
+        }
+        viewModel.fetchUserRecipes(userId: userId)
+    }
+}
+
 
 struct RecipeImageView: View {
     let imagePath: String
