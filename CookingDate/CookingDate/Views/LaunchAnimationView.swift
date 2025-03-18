@@ -13,8 +13,8 @@ struct LaunchAnimationView: View {
     @State private var fadeInText = false
     @State private var navigateToLogin = false
 
-    // Make sure these names match your asset catalog exactly (no file extensions)
-    let images = ["HT", "GY", "LB"]
+  
+    let images = ["GY", "HT", "CookingDateLogo"]
 
     var body: some View {
         ZStack {
@@ -29,10 +29,10 @@ struct LaunchAnimationView: View {
                     .id(currentImageIndex)
 
                 if fadeInText {
-                    Text("It's never too latte, to have a Cooking Date")
-                        .font(.title3.bold())
+                    Text("It's never too late, to have a Cooking Date")
+                        .font(.system(.title3, design: .serif).bold())
                         .multilineTextAlignment(.center)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.black)
                         .padding()
                         .transition(.opacity)
                 }
@@ -54,7 +54,7 @@ struct LaunchAnimationView: View {
         withAnimation(.easeInOut(duration: 1.0)) {
             if currentImageIndex < images.count - 1 {
                 currentImageIndex += 1
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
                     switchToNextImage()
                 }
             } else {

@@ -64,7 +64,7 @@ class RecipesViewModel {
     }
 
     func deleteRecipe(_ recipe: Recipe) {
-        let id = recipe.id  // no optional unwrapping
+        let id = recipe.id
         Firestore.firestore().collection("recipes").document(id).delete { error in
             if let error = error {
                 print("❌ Failed to delete: \(error.localizedDescription)")
@@ -116,6 +116,8 @@ class RecipesViewModel {
 
                 Task {
                     await self.fetchRecipes()
+                    URLSession.shared.dataTask(with: imageURL).resume()
+
                 }
             }
 
