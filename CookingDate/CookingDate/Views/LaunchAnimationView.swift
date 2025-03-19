@@ -5,64 +5,45 @@
 //  Created by Eduardo Rodrigues da Cruz on 17.03.25.
 //
 
-
 import SwiftUI
 
 struct LaunchAnimationView: View {
-    @State private var currentImageIndex = 0
-    @State private var fadeInText = false
+    @State private var animate = false
     @State private var navigateToLogin = false
-
-  
-    let images = ["GY", "HT", "CookingDateLogo"]
 
     var body: some View {
         ZStack {
             LinearGradient.appBackground.ignoresSafeArea()
 
             VStack(spacing: 20) {
-                Image(images[currentImageIndex])
+                Image("CookingDateLogo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200, height: 200)
-                    .transition(.opacity)
-                    .id(currentImageIndex)
+                    .scaleEffect(animate ? 1.1 : 0.9)
+                    .shadow(color: .white.opacity(animate ? 0.6 : 0.2), radius: 20, x: 0, y: 0)
+                    .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: animate)
 
-                if fadeInText {
-                    Text("It's never too late, to have a Cooking Date")
-                        .font(.system(.title3, design: .serif).bold())
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.black)
-                        .padding()
-                        .transition(.opacity)
-                }
+                Text("It’s never too late to have a Cooking Date")
+                    .font(.system(.title3, design: .serif))
+                    .bold()
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.black)
+                    .opacity(animate ? 1 : 0)
+                    .offset(y: animate ? 0 : 10)
+                    .animation(.easeOut(duration: 1.5).delay(0.5), value: animate)
             }
         }
-        .onAppear(perform: animateSequence)
+        .onAppear {
+            animate = true
+
+         
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                navigateToLogin = true
+            }
+        }
         .fullScreenCover(isPresented: $navigateToLogin) {
             LoginView()
-        }
-    }
-
-    func animateSequence() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            switchToNextImage()
-        }
-    }
-
-    func switchToNextImage() {
-        withAnimation(.easeInOut(duration: 1.0)) {
-            if currentImageIndex < images.count - 1 {
-                currentImageIndex += 1
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
-                    switchToNextImage()
-                }
-            } else {
-                fadeInText = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                    navigateToLogin = true
-                }
-            }
         }
     }
 }

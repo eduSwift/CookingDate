@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct HomeView: View {
-    @State var viewModel = MealsViewModel()
-    @State var viewModel2 = RecipesViewModel()
+    @State var mealsViewModel = MealsViewModel()
+    @Binding var recipesViewModel: RecipesViewModel
     @State var searchText = ""
     @Binding var selection: Int
     @Environment(\.colorScheme) private var colorScheme
@@ -39,12 +39,12 @@ struct HomeView: View {
     }
     
     var recentlyAddedRecipes: [Recipe] {
-        return viewModel2.recipes
+        return recipesViewModel.allRecipes
     }
     
     var combinedFilteredRecipes: [RecipeMealItem] {
         let mockResults = searchText.isEmpty ? recentlyAddedRecipes : recentlyAddedRecipes.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        let mealResults = searchText.isEmpty ? viewModel.meals : viewModel.filteredMeals
+        let mealResults = searchText.isEmpty ? mealsViewModel.meals : mealsViewModel.filteredMeals
         
         return mockResults.map { RecipeMealItem.recipe($0) } + mealResults.map { RecipeMealItem.meal($0) }
     }
@@ -84,11 +84,11 @@ struct HomeView: View {
                             }
                         } else {
                       
-                           
+                        
                                 SectionHeader(title: "Recently Added")
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 10) {
-                                        ForEach(viewModel2.recipes) { recipe in
+                                        ForEach(recipesViewModel.allRecipes) { recipe in
                                             NavigationLink(destination: RecipeDetailsView(recipe: recipe)) {
                                                 RecipeCard(recipe: recipe, itemWidth: itemWidth, itemHeight: itemHeight)
                                             }
@@ -99,11 +99,11 @@ struct HomeView: View {
                             
 
                          
-                            if !viewModel.meals.isEmpty {
+                            if !mealsViewModel.meals.isEmpty {
                                 SectionHeader(title: "Get Inspired")
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 10) {
-                                        ForEach(viewModel.meals) { meal in
+                                        ForEach(mealsViewModel.meals) { meal in
                                             NavigationLink(destination: MealDetailsView(meal: meal)) {
                                                 RecipeCardAPI(meal: meal, itemWidth: itemWidth, itemHeight: itemHeight)
                                             }
@@ -186,5 +186,5 @@ struct RecipeCardAPI: View {
 }
 
 #Preview {
-    HomeView(selection: .constant(0))
+    HomeView(recipesViewModel: .constant(.init()), selection: .constant(0))
 }

@@ -9,9 +9,10 @@ import SwiftUI
 
 struct MyRecipesView: View {
     @State private var isAddingRecipe = false
-    @State private var viewModel = RecipesViewModel()
+    @Binding var viewModel: RecipesViewModel
     @Binding var selection: Int
     @Environment(SessionManager.self) var sessionManager
+    
 
     var body: some View {
         NavigationStack {
@@ -28,7 +29,7 @@ struct MyRecipesView: View {
                         Spacer()
                     }
 
-                    if viewModel.recipes.isEmpty {
+                    if viewModel.userRecipes.isEmpty {
                         Spacer()
                         Text("No recipes yet")
                             .font(.title2)
@@ -37,7 +38,7 @@ struct MyRecipesView: View {
                         Spacer()
                     } else {
                         List {
-                            ForEach(viewModel.recipes) { recipe in
+                            ForEach(viewModel.userRecipes) { recipe in
                                 HStack(spacing: 15) {
                                     RecipeImageView(imagePath: recipe.image)
                                         .frame(width: 80, height: 80)
@@ -97,7 +98,7 @@ struct MyRecipesView: View {
 
     private func loadRecipes() {
         guard let userId = sessionManager.currentUser?.id else {
-            viewModel.recipes = []
+            viewModel.userRecipes = []
             return
         }
         viewModel.fetchUserRecipes(userId: userId)
@@ -125,5 +126,5 @@ struct RecipeImageView: View {
 
 
 #Preview {
-    MyRecipesView(selection: .constant(1))
+    MyRecipesView(viewModel: .constant(.init()), selection: .constant(2))
 }

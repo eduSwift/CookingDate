@@ -13,17 +13,18 @@ struct MainTabView: View {
     @State private var unreadCount = 0
     @AppStorage("lastChatCheck") var lastChatCheck: Double = 0
     @Environment(SessionManager.self) var sessionManager
+    @State var recipesViewModel = RecipesViewModel()
     
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            HomeView(selection: $selectedTab)
+            HomeView(recipesViewModel: $recipesViewModel, selection: $selectedTab)
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
                 .tag(0)
 
-            MyRecipesView(selection: $selectedTab)
+            MyRecipesView(viewModel: $recipesViewModel, selection: $selectedTab)
                 .tabItem {
                     Label("My Recipes", systemImage: "book")
                 }

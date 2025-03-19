@@ -143,6 +143,10 @@ struct ProfileCardView: View {
                 }
                 
                 InfoSection(title: "About Me", content: profile.aboutMe)
+                    
+                InfoSection(title: "Gender", content: profile.gender)
+                
+                InfoSection(title: "Orientation", content: profile.orientation)
                 
                 InfoSection(title: "Looking For", content: profile.lookingFor)
                 

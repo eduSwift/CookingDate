@@ -16,7 +16,8 @@ import FirebaseFirestore
 @MainActor
 @Observable
 class RecipesViewModel {
-    var recipes: [Recipe] = []
+    var userRecipes: [Recipe] = []
+    var allRecipes: [Recipe] = []
     var recipeToEdit: Recipe?
     var isEditingRecipe = false
     var recipeName = ""
@@ -30,14 +31,14 @@ class RecipesViewModel {
             }
         }
     }
-
+    
     var formattedIngredients: [String] {
         ingredientsInput
             .components(separatedBy: "• ")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
     }
-
+    
     var createdAt = Date()
     var showImageOptions = false
     var showLibrary = false
@@ -45,7 +46,9 @@ class RecipesViewModel {
     var recipeImage: UIImage?
     var uploadProgress: Float = 0
     var isLoading = false
-
+    
+    
+    
     func fetchUserRecipes(userId: String) {
         Firestore.firestore().collection("recipes")
             .whereField("userId", isEqualTo: userId)
@@ -53,16 +56,34 @@ class RecipesViewModel {
                 DispatchQueue.main.async {
                     if let error = error {
                         print("Error fetching recipes: \(error.localizedDescription)")
-                        self.recipes = []
+                        self.userRecipes = []
                         return
                     }
-                    self.recipes = snapshot?.documents.compactMap { doc in
+                    self.userRecipes = snapshot?.documents.compactMap { doc in
                         try? doc.data(as: Recipe.self)
                     } ?? []
                 }
             }
     }
+    
+    func observeAllRecipes() {
+        Firestore.firestore().collection("recipes")
+            .order(by: "createdAt", descending: true)
+            .addSnapshotListener { snapshot, error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        print("❌ Real-time error fetching all recipes: \(error.localizedDescription)")
+                        self.allRecipes = []
+                        return
+                    }
 
+                    self.allRecipes = snapshot?.documents.compactMap { doc in
+                        try? doc.data(as: Recipe.self)
+                    } ?? []
+                }
+            }
+    }
+    
     func deleteRecipe(_ recipe: Recipe) {
         let id = recipe.id
         Firestore.firestore().collection("recipes").document(id).delete { error in
@@ -70,83 +91,71 @@ class RecipesViewModel {
                 print("❌ Failed to delete: \(error.localizedDescription)")
             } else {
                 print("✅ Deleted recipe: \(recipe.name)")
-                self.recipes.removeAll { $0.id == id }
+                self.userRecipes.removeAll { $0.id == id }
+                self.allRecipes.removeAll { $0.id == id }
             }
         }
     }
-
-
-    func addRecipe(imageURL: URL, handler: @escaping (_ success: Bool) -> Void) {
+    
+    
+    func addRecipe(imageURL: URL, completionHandler: @escaping (_ success: Bool) -> Void) {
         guard let userId = Auth.auth().currentUser?.uid else {
-            handler(false)
+            completionHandler(false)
             return
         }
-        guard recipeName.count >= 2 else {
-            handler(false)
+        
+        guard recipeName.count >= 2,
+              description.count >= 5,
+              preparationTime != 0,
+              ingredientsInput.count >= 2 else {
+            completionHandler(false)
             return
         }
-        guard description.count >= 5 else {
-            handler(false)
-            return
-        }
-        guard preparationTime != 0 else {
-            handler(false)
-            return
-        }
-        guard ingredientsInput.count >= 2 else {
-            handler(false)
-            return
-        }
-
+        
         isLoading = true
         let ref = Firestore.firestore().collection("recipes").document()
-
+        
         let recipe = Recipe(id: ref.documentID, image: imageURL.absoluteString, name: recipeName, description: description, difficulty: difficulty, ingredients: ingredientsInput, time: preparationTime, userId: userId)
-
+        
         do {
             try Firestore.firestore().collection("recipes").document(ref.documentID).setData(from: recipe) { error in
                 if let error = error {
                     print(error.localizedDescription)
-                    handler(false)
+                    completionHandler(false)
                     self.isLoading = false
                     return
                 }
                 self.isLoading = false
-                handler(true)
-
+                completionHandler(true)
+                
                 Task {
-                    await self.fetchRecipes()
+                    self.fetchUserRecipes(userId: userId)
                     URLSession.shared.dataTask(with: imageURL).resume()
-
                 }
             }
-
+            
         } catch {
             isLoading = false
-            handler(false)
+            completionHandler(false)
         }
     }
-
+    
     func upload() async -> URL? {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            return nil
-        }
-
-        guard let recipeImage = recipeImage,
+        guard let userId = Auth.auth().currentUser?.uid,
+              let recipeImage = recipeImage,
               let imageData = recipeImage.jpegData(compressionQuality: 0.7) else {
             return nil
         }
-
+        
         let imageID = UUID().uuidString.lowercased().replacingOccurrences(of: "-", with: "_")
         let imageName = "\(imageID).jpeg"
         let imagePath = "images\(userId)/\(imageName)"
-
         let storageRef = Storage.storage().reference(withPath: imagePath)
-
+        
         let metaData = StorageMetadata()
         metaData.contentType = "image/jpeg"
         isLoading = true
-
+        
         do {
             let _ = try await storageRef.putDataAsync(imageData, metadata: metaData) { progress in
                 if let progress = progress {
@@ -154,78 +163,40 @@ class RecipesViewModel {
                     self.uploadProgress = percentComplete
                 }
             }
-
+            
             isLoading = false
-            let donwloadURL = try await storageRef.downloadURL()
-            return donwloadURL
+            return try await storageRef.downloadURL()
         } catch {
             isLoading = false
             return nil
         }
     }
-
-    func observe(onChange: @escaping ([Recipe]) -> Void) throws {
-        guard (Auth.auth().currentUser?.uid) != nil else {
-            return
-        }
-        Firestore.firestore().collection("recipes").addSnapshotListener(includeMetadataChanges: false) { snapshot, error in
-            if error != nil { return }
-            guard let snapshot = snapshot else { return }
-
-            let todos = snapshot.documents.compactMap { document in
-                try? document.data(as: Recipe.self)
-            }
-
-            onChange(todos)
-        }
-    }
-
-    private func observeRecipes() {
-        try? self.observe { recipes in
-            self.recipes = recipes
-        }
-    }
-
+    
     init() {
-        observeRecipes()
-    }
+           observeAllRecipes()
+           if let userId = Auth.auth().currentUser?.uid {
+               fetchUserRecipes(userId: userId)
+           }
+       }
 
-
+    
+    
     func fetchRecipes() async {
         guard let userId = Auth.auth().currentUser?.uid else {
             return
         }
         do {
             let recipesResult = try await Firestore.firestore().collection("recipes").whereField("userId", isEqualTo: userId).getDocuments()
-
-            var fetchedRecipes: [Recipe] = []
-
-            for recipeDocument in recipesResult.documents {
-                let data = recipeDocument.data()
-
-                guard let imageLocation = data["image"] as? String,
-                      let descriptions = data["description"] as? String,
-                      let name = data["name"] as? String,
-                      let difficulty = data["difficulty"] as? String,
-                      let ingredients = data["ingredients"] as? String,
-                      let userId = data["userId"] as? String,
-                      let time = data["time"] as? Int,
-                      data["createdAt"] is Timestamp else {
-                    continue
-                }
-
-                let id = recipeDocument.documentID
-                let recipe = Recipe(id: id, image: imageLocation, name: name, description: descriptions, difficulty: difficulty, ingredients: ingredients, time: time, userId: userId)
-                fetchedRecipes.append(recipe)
-            }
-
+            
+            let fetched = recipesResult.documents.compactMap { try? $0.data(as: Recipe.self) }
+            
             DispatchQueue.main.async {
-                self.recipes = fetchedRecipes
+                self.userRecipes = fetched
             }
-
         } catch {
-            print("Error fetching recipes async: \(error.localizedDescription)")
+            print("Error fetching user recipes async: \(error.localizedDescription)")
         }
     }
+    
 }
 
