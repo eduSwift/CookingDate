@@ -19,7 +19,7 @@
 - [Contact/Authors](#-contactauthors)
 
 ## 📸 Screenshots 
-Working in progress... ⏳
+<img src="Screenshots.png" align="left">
 
 ## ✨ Features
 
@@ -53,7 +53,7 @@ Working in progress... ⏳
 - **[MapKit](https://developer.apple.com/documentation/mapkit/)** - Location Services
 
 ## 📚 Libraries
-Working in progress... ⏳
+[TheMealDB](https://www.themealdb.com)** - API for recipes
 
 
 ## 👨🏻‍💻 Contact/Authors
