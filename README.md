@@ -33,7 +33,7 @@
 ## 📲 Installation
 1. Clone repo:
    ```bash
-   git clone https://github.com/yourusername/cooking-date.git
+   git clone https://github.com/eduSwift/CookingDate
 
 2. Navigate to the project folder:
    ```bash
