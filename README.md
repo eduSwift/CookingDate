@@ -16,7 +16,7 @@
 - [Features](#-features)
 - [Technical Stack](#-technical-stack)
 - [Libraries](#-libraries)
-- [Contact/Authors](#-contactauthors)
+- [Author](#-author)
 
 ## 📸 Screenshots 
 <img src="Screenshots.png" align="left">
