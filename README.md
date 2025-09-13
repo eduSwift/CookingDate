@@ -1,8 +1,8 @@
 # Cooking Date 🍽️👨🏽‍🍳❤️👩
 
-*Cook Together, Make Friends, Find Love, Share Flavors*  
+**Cook Together, Make Friends, Find Love, Share Flavors.**  
 
-<img src="https://github.com/eduSwift/CookingDate/blob/main/CookingDate/CookingDate/Assets.xcassets/AppIcon.appiconset/appstore.png" width="500" align="left">
+<img src="https://github.com/eduSwift/CookingDate/blob/main/CookingDate/CookingDate/Assets.xcassets/AppIcon.appiconset/appstore.png" width="300" align="left">
 
 <br clear="all">
 
@@ -20,6 +20,8 @@
 
 ## 📸 Screenshots 
 <img src="Screenshots.png" align="left">
+
+<br clear="all">
 
 ## ✨ Features
 
@@ -56,5 +58,5 @@
 [TheMealDB](https://www.themealdb.com)** - API for recipes
 
 
-## 👨🏻‍💻 Contact/Authors
-[Eduardo Rodrigues](https://www.linkedin.com/in/eduardo-rodriguescruz/)
+## 👨🏻‍💻 Author
+**[Eduardo Rodrigues](https://www.linkedin.com/in/eduardo-rodriguescruz/)**
