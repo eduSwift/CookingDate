@@ -52,7 +52,6 @@
   - Authentication (Social logins)
   - Cloud Functions (Location filtering)
   - Cloud Messaging (Notifications)
-- **[MapKit](https://developer.apple.com/documentation/mapkit/)** - Location Services
 
 ## 📚 Libraries
 [TheMealDB](https://www.themealdb.com)** - API for recipes
